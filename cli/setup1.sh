@@ -33,7 +33,7 @@ echo "   ✅ 完了"
 # -----------------------------------------------------------------------------
 echo ""
 echo "📥 GitHubからソースコードをダウンロードしています..."
-curl -L https://github.com/okamoto53515606/homepage/archive/refs/heads/main.tar.gz | \
+curl -L https://github.com/okamoto53515606/MyRecycling/archive/refs/heads/main.tar.gz | \
   tar -xz --strip-components=1
 echo "   ✅ 完了"
 
@@ -43,7 +43,7 @@ echo "   ✅ 完了"
 echo ""
 echo "📝 Gitに変更をコミットしています..."
 git add -A
-git commit -m "Synchronized with okamoto53515606/homepage"
+git commit -m "Synchronized with okamoto53515606/MyRecycling"
 echo "   ✅ 完了"
 
 # -----------------------------------------------------------------------------
