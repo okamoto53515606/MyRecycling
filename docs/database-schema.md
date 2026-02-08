@@ -61,9 +61,9 @@
 
 ---
 
-## 3. 予約日時関連コレクション (新規)
+## 3. 注文日時関連コレクション (新規)
 
-予約可能な日時を制御するためのマスターデータです。
+注文可能な日時を制御するためのマスターデータです。
 
 ### 3-1. available_weekdays コレクション
 - **コレクションパス**: `/available_weekdays`
@@ -139,7 +139,7 @@
 
 ## 6. orders コレクション (新規)
 
-商品の注文情報を格納します。1ドキュメントが1回の取引予約に対応します。
+商品の注文情報を格納します。1ドキュメントが1回の取引（注文から受け渡し、返品まで）に対応します。
 
 - **コレクションパス**: `/orders`
 - **ドキュメントID**: 自動生成ID
@@ -163,13 +163,20 @@
 | `orderStatus` | `string` | 注文ステータス (`authorized`, `approved`, `canceled`, `delivered`, `refund_requested`, `refunded`) |
 | `stripePaymentIntentId` | `string` | StripeのPaymentIntent ID |
 | `ipAddress` | `string` | 注文時のIPアドレス |
-| `authorizedAt` | `timestamp`| 予約受付日時（オーソリ実行日時） |
-| `approvedAt` | `timestamp`| (任意) 予約承認日時 |
-| `canceledAt` | `timestamp`| (任意) 予約キャンセル日時 |
-| `deliveredAt` | `timestamp`| (任意) 商品引き渡し日時（売上確定日時） |
-| `refundedAt` | `timestamp`| (任意) 返金完了日時 |
+| `orderedAt` | `timestamp`| 注文受付日時（オーソリ実行日時） |
+| `approvedAt` | `timestamp`| (任意) 注文承認日時 |
+| `cancellationReason`| `string` | (任意) 注文キャンセル理由 |
+| `canceledAt` | `timestamp`| (任意) 注文キャンセル日時 |
+| `handedOverAt` | `timestamp`| (任意) 商品受け渡し日時（売上確定日時） |
+| `refundRequestReason`| `string` | (任意) 返品理由 |
+| `refundMeetingDatetime` | `timestamp`| (任意) 返品時の受け渡し希望日時 |
+| `refundMeetingLocationId`| `string` | (任意) 返品時の受け渡し場所ID |
+| `refundMeetingLocationName`| `string` | (任意/冗長化) 返品時の受け渡し場所名 |
+| `refundMeetingLocationDescription`| `string` | (任意/冗長化) 返品時の場所補足説明 |
+| `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogleマップURL |
+| `returnedAt` | `timestamp`| (任意) 商品返品日時（返金日時） |
 
-**※在庫管理:** ある商品ID（`productId`）に対し、`orderStatus` が `authorized`, `approved`, `delivered`, `refund_requested` のいずれかである注文が存在する場合、その商品は他の人が予約できないようにアプリケーション側で制御する必要があります。
+**※在庫管理:** ある商品ID（`productId`）に対し、`orderStatus` が `authorized`, `approved`, `delivered`, `refund_requested` のいずれかである注文が存在する場合、その商品は他の人が注文できないようにアプリケーション側で制御する必要があります。
 
 ---
 
