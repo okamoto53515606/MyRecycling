@@ -2,11 +2,11 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // 記事の画像は "articles/{userId}/{timestamp}-{fileName}" のパスに保存
-    match /articles/{userId}/{fileName} {
+    // 商品の画像は "products/{userId}/{timestamp}-{fileName}" のパスに保存
+    match /products/{userId}/{fileName} {
 
       // 読み取り: 誰でも許可
-      // 記事に埋め込まれる画像は公開されている必要があるため
+      // 商品の画像は公開されている必要があるため
       allow read: if true;
 
       // 書き込み (作成・更新・削除):
