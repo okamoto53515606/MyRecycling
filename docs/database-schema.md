@@ -158,9 +158,9 @@
 | `meetingLocationId`| `string` | 受け渡し場所のドキュメントID |
 | `meetingLocationName`| `string` | (冗長化) 受け渡し場所の名称 |
 | `meetingLocationDescription`| `string` | (冗長化) 受け渡し場所の補足説明 |
-| `meetingLocationGoogleMapEmbedURL`| `string` | (冗長化) Google Mapの埋め込みURL |
+| `meetingLocationGoogleMapEmbedURL`| `string` | (冗長化) Google Mapの埋め込み用HTMLタグ |
 | `meetingDatetime` | `timestamp`| 受け渡し希望日時 |
-| `orderStatus` | `string` | 注文ステータス (`authorized`, `approved`, `canceled`, `delivered`, `refund_requested`, `refunded`) |
+| `orderStatus` | `string` | 注文ステータス<br>authorized: 注文受付済<br>approved: 注文承認済<br>canceled: 注文キャンセル済<br>delivered: 商品受け渡し済<br>refund_requested: 返品依頼中<br>refunded: 商品返品済 |
 | `stripePaymentIntentId` | `string` | StripeのPaymentIntent ID |
 | `ipAddress` | `string` | 注文時のIPアドレス |
 | `orderedAt` | `timestamp`| 注文受付日時（オーソリ実行日時） |
@@ -173,7 +173,7 @@
 | `refundMeetingLocationId`| `string` | (任意) 返品時の受け渡し場所ID |
 | `refundMeetingLocationName`| `string` | (任意/冗長化) 返品時の受け渡し場所名 |
 | `refundMeetingLocationDescription`| `string` | (任意/冗長化) 返品時の場所補足説明 |
-| `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogleマップURL |
+| `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogle Mapの埋め込み用HTMLタグ |
 | `returnedAt` | `timestamp`| (任意) 商品返品日時（返金日時） |
 
 **※在庫管理:** ある商品ID（`productId`）に対し、`orderStatus` が `authorized`, `approved`, `delivered`, `refund_requested` のいずれかである注文が存在する場合、その商品は他の人が注文できないようにアプリケーション側で制御する必要があります。
