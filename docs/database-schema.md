@@ -9,7 +9,6 @@
 - **settings**: サイト全体のグローバル設定
 - **products**: 出品する商品データ
 - **users**: ユーザー情報
-- **payments**: 決済履歴
 - **orders**: 注文データ
 - **meeting_locations**: 受け渡し場所の情報
 - **available_weekdays**: 受け渡し可能な曜日
@@ -95,7 +94,7 @@
 
 ## 4. products コレクション (旧 articles)
 
-出品するすべての商品データを格納します。各ドキュメントが1つの商品に対応します。
+出品するすべての商品データを格納します。各ドキュメントが1つの商品に対応します。URLにはドキュメントIDを直接使用します。
 
 - **コレクションパス**: `/products`
 - **ドキュメントID**: 自動生成ID
@@ -109,7 +108,6 @@
 | `excerpt` | `string` | 商品一覧で表示する短い要約 |
 | `imageAssets` | `array` of `map` | 商品画像のリスト |
 | `tags` | `array` of `string` | カテゴリとして利用 |
-| `slug` | `string` | URLに使用する識別子 |
 | `status` | `string` | 公開状態 (`published` or `draft`) |
 | `authorId` | `string` | 商品を登録した管理者のUID |
 | `price` | `number` | 販売価格（円） |
@@ -159,6 +157,8 @@
 | `commentFromBuyer` | `string` | (任意) 購入者からのコメント |
 | `meetingLocationId`| `string` | 受け渡し場所のドキュメントID |
 | `meetingLocationName`| `string` | (冗長化) 受け渡し場所の名称 |
+| `meetingLocationDescription`| `string` | (冗長化) 受け渡し場所の補足説明 |
+| `meetingLocationGoogleMapEmbedURL`| `string` | (冗長化) Google Mapの埋め込みURL |
 | `meetingDatetime` | `timestamp`| 受け渡し希望日時 |
 | `orderStatus` | `string` | 注文ステータス (`authorized`, `approved`, `canceled`, `delivered`, `refund_requested`, `refunded`) |
 | `stripePaymentIntentId` | `string` | StripeのPaymentIntent ID |
@@ -170,29 +170,6 @@
 | `refundedAt` | `timestamp`| (任意) 返金完了日時 |
 
 **※在庫管理:** ある商品ID（`productId`）に対し、`orderStatus` が `authorized`, `approved`, `delivered`, `refund_requested` のいずれかである注文が存在する場合、その商品は他の人が予約できないようにアプリケーション側で制御する必要があります。
-
----
-
-## 7. payments コレクション
-
-Stripeによる決済イベントのログを格納します。
-
-- **コレクションパス**: `/payments`
-- **ドキュメントID**: 自動生成ID
-
-### フィールド
-| フィールド名 | データ型 | 説明 |
-| :--- | :--- | :--- |
-| `orderId` | `string` | 紐づく注文のドキュメントID |
-| `paymentType` | `string` | 決済種別 (`authorization`, `capture`, `cancellation`, `refund`) |
-| `user_id` | `string` | 購入者のUID |
-| `stripe_session_id` | `string` | Stripe Checkout セッションID |
-| `stripe_payment_intent_id` | `string` | Stripe PaymentIntent ID |
-| `amount` | `number` | 金額 |
-| `currency` | `string` | 通貨 (例: `jpy`) |
-| `status` | `string` | 決済ステータス (例: `succeeded`, `canceled`) |
-| `ip_address` | `string` | 決済時のIPアドレス |
-| `created_at` | `timestamp`| 決済イベント発生日時 |
 
 ---
 
