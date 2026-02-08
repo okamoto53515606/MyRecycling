@@ -43,3 +43,23 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+# memo
+.memo/*
+
+# .idea
+.idea/*
+
+# Project IDX / Firebase Studio specific
+/.idx/
+
+# package-lock.json
+package-lock.json
+
+# .modified
+.modified
+
+# stripe CLI
+/cli/stripe
+
+
