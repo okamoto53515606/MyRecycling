@@ -291,8 +291,8 @@ const availableTimes = [
 
 // 5. unavailable_datesコレクション
 const unavailableDates = [
-  '2028-12-30',
-  '2028-12-31',
+  '2026-12-30',
+  '2026-12-31',
   '2027-01-01',
   '2027-01-02',
   '2027-01-03'

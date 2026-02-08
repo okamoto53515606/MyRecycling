@@ -8,7 +8,7 @@
 import { getAdminDb } from './firebase-admin';
 import { logger } from './env';
 import type { Timestamp, DocumentData, DocumentSnapshot, Query } from 'firebase-admin/firestore';
-import type { Product, MeetingLocation } from './types';
+import type { Product, MeetingLocation, AvailableWeekday, AvailableTime, UnavailableDate } from './types';
 
 // --- 型定義 (サマリー) ---
 
@@ -192,6 +192,84 @@ export async function getMeetingLocation(id: string): Promise<MeetingLocation | 
   } catch (error) {
     logger.error(`受け渡し場所(${id})の取得に失敗:', error`);
     return null;
+  }
+}
+
+// --- Delivery Settings Data ---
+
+const ORDERED_WEEKDAYS = [
+  { id: 'sun', name: '日曜' },
+  { id: 'mon', name: '月曜' },
+  { id: 'tue', name: '火曜' },
+  { id: 'wed', name: '水曜' },
+  { id: 'thu', name: '木曜' },
+  { id: 'fri', name: '金曜' },
+  { id: 'sat', name: '土曜' },
+];
+
+const JAPANESE_WEEKDAYS_MAP: { [key: string]: string } = {
+  sun: '日曜',
+  mon: '月曜',
+  tue: '火曜',
+  wed: '水曜',
+  thu: '木曜',
+  fri: '金曜',
+  sat: '土曜',
+};
+
+export async function getAvailableWeekdays(): Promise<AvailableWeekday[]> {
+  try {
+    const db = getAdminDb();
+    const snapshot = await db.collection('available_weekdays').orderBy('order', 'asc').get();
+    if (snapshot.empty) {
+      // デフォルト値を返す
+      return ORDERED_WEEKDAYS.map((day, index) => ({
+        id: day.id,
+        isAvailable: true, // デフォルトはすべて利用可能
+        order: index,
+        name: day.name,
+      }));
+    }
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      isAvailable: doc.data().isAvailable,
+      order: doc.data().order,
+      name: JAPANESE_WEEKDAYS_MAP[doc.id] || '不明',
+    }));
+  } catch (error) {
+    logger.error('[data.ts] getAvailableWeekdays failed:', error);
+    return [];
+  }
+}
+
+export async function getAvailableTimes(): Promise<AvailableTime[]> {
+  try {
+    const db = getAdminDb();
+    const snapshot = await db.collection('available_times').orderBy('time', 'asc').get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      time: doc.data().time,
+    }));
+  } catch (error) {
+    logger.error('[data.ts] getAvailableTimes failed:', error);
+    return [];
+  }
+}
+
+export async function getUnavailableDates(): Promise<UnavailableDate[]> {
+  try {
+    const db = getAdminDb();
+    // 未来の日付のみを取得
+    const snapshot = await db.collection('unavailable_dates').where('date', '>=', new Date()).get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      date: convertTimestamp(doc.data().date),
+    }));
+  } catch (error) {
+    logger.error('[data.ts] getUnavailableDates failed:', error);
+    return [];
   }
 }
 

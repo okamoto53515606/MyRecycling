@@ -11,9 +11,10 @@ import {
   ShoppingCart,
   Home, 
   LayoutDashboard, 
-  MapPin, // MapPin アイコンをインポート
+  MapPin,
   ChevronLeft,
   ChevronRight,
+  CalendarClock, // アイコンをインポート
 } from 'lucide-react';
 
 const STORAGE_KEY = 'admin-sidebar-collapsed';
@@ -22,7 +23,8 @@ const STORAGE_KEY = 'admin-sidebar-collapsed';
 const navItems = [
   { href: '/admin', label: 'ダッシュボード', icon: LayoutDashboard },
   { href: '/admin/products', label: '商品管理', icon: ShoppingCart },
-  { href: '/admin/meeting-locations', label: '受け渡し場所', icon: MapPin }, // 新規追加
+  { href: '/admin/meeting-locations', label: '受け渡し場所', icon: MapPin },
+  { href: '/admin/delivery-settings', label: '受け渡し日時設定', icon: CalendarClock }, // 新規追加
   { href: '/admin/settings', label: 'サイト設定', icon: Settings },
 ];
 
