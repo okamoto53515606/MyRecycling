@@ -37,8 +37,11 @@ export default async function AdminLayout({
   return (
     <div className="admin-layout">
       <AdminSidebar />
+      {/* 【修正】admin-main の内側に admin-content を追加 */}
       <main className="admin-main">
-        {children}
+        <div className="admin-content">
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -5,15 +5,19 @@
  * 【提供する機能】
  * - getAdminDb(): Firestore インスタンス
  * - getAdminAuth(): Auth インスタンス（セッション管理用）
+ * - getAdminStorage(): Storage インスタンス（ファイルアップロード用）
  * 
  * 注意: クライアントサイドでは src/lib/firebase.ts を使用
  */
 import { initializeApp, getApps, getApp, cert, App } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getAuth, Auth } from 'firebase-admin/auth';
+import { getStorage, Storage } from 'firebase-admin/storage'; //【追加】
 
 let adminApp: App | undefined;
 let adminDb: Firestore | undefined;
+let adminAuth: Auth | undefined;
+let adminStorage: Storage | undefined; //【追加】
 
 const ADMIN_APP_NAME = 'admin-with-credentials';
 
@@ -43,13 +47,9 @@ function getAdminApp(): App {
       return adminApp;
     }
     
-    // デフォルトアプリがあり、それが credentials 付きで初期化されている可能性がある場合
-    // apps[0] を使用（Firebase Studio では ADC が使われることもある）
-    
     try {
       const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY!);
       
-      // 環境変数では \n がリテラル文字列として保存されるため、実際の改行に変換
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
       }
@@ -57,19 +57,20 @@ function getAdminApp(): App {
       debugLog('[Admin SDK] Service account email:', serviceAccount.client_email);
       
       const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+      const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET; //【追加】
       
       // 既存のアプリがある場合は別名で、ない場合はデフォルトで初期化
+      const appConfig = {
+        credential: cert(serviceAccount),
+        projectId,
+        storageBucket, //【追加】
+      };
+
       if (apps.length > 0) {
-        adminApp = initializeApp({
-          credential: cert(serviceAccount),
-          projectId,
-        }, ADMIN_APP_NAME);
+        adminApp = initializeApp(appConfig, ADMIN_APP_NAME);
         debugLog('[Admin SDK] Initialized NEW app with name:', ADMIN_APP_NAME);
       } else {
-        adminApp = initializeApp({
-          credential: cert(serviceAccount),
-          projectId,
-        });
+        adminApp = initializeApp(appConfig);
         debugLog('[Admin SDK] Initialized default app with service account key');
       }
       
@@ -81,13 +82,16 @@ function getAdminApp(): App {
   }
   
   // サービスアカウントキーがない場合（ローカル開発で gcloud ADC を使用）
+  const appConfig = {
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET, //【追加】
+  };
+
   if (apps.length > 0) {
     adminApp = apps[0];
     debugLog('[Admin SDK] Using existing app with default credentials');
   } else {
-    adminApp = initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
+    adminApp = initializeApp(appConfig);
     debugLog('[Admin SDK] Initialized with default credentials');
   }
 
@@ -104,12 +108,7 @@ export function getAdminDb(): Firestore {
   return adminDb;
 }
 
-let adminAuth: Auth | undefined;
 
-/**
- * Firebase Admin Auth インスタンスを取得
- * セッションクッキーの作成・検証に使用
- */
 export function getAdminAuth(): Auth {
   if (adminAuth) {
     return adminAuth;
@@ -118,4 +117,18 @@ export function getAdminAuth(): Auth {
   const app = getAdminApp();
   adminAuth = getAuth(app);
   return adminAuth;
+}
+
+/**
+ * 【追加】Firebase Admin Storage インスタンスを取得
+ * ファイルのアップロード/ダウンロードに使用
+ */
+export function getAdminStorage(): Storage {
+  if (adminStorage) {
+    return adminStorage;
+  }
+  
+  const app = getAdminApp();
+  adminStorage = getStorage(app);
+  return adminStorage;
 }

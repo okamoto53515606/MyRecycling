@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Settings, 
-  Newspaper, 
+  ShoppingCart, // Newspaper から変更
   Home, 
   LayoutDashboard, 
   MessageSquare,
@@ -25,7 +25,7 @@ const STORAGE_KEY = 'admin-sidebar-collapsed';
 
 const navItems = [
   { href: '/admin', label: 'ダッシュボード', icon: LayoutDashboard },
-  { href: '/admin/articles', label: '記事管理', icon: Newspaper },
+  { href: '/admin/products', label: '商品管理', icon: ShoppingCart }, // 変更
   { href: '/admin/comments', label: 'コメント管理', icon: MessageSquare },
   { href: '/admin/settings', label: 'サイト設定', icon: Settings },
 ];

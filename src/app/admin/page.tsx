@@ -4,7 +4,7 @@
  * @description
  * 管理機能のトップページ。サイトの概要や主要な機能へのリンクを提供します。
  */
-import { Settings, Newspaper, Wand2, MessageSquare } from 'lucide-react';
+import { Settings, ShoppingCart, MessageSquare, PlusSquare } from 'lucide-react'; // Newspaper, Wand2 を変更
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
@@ -23,14 +23,14 @@ export default function AdminDashboardPage() {
           <Link href="/admin/settings" className="admin-btn">
             <Settings size={16} /> サイト設定
           </Link>
-          <Link href="/admin/articles" className="admin-btn">
-            <Newspaper size={16} /> 記事管理
+          <Link href="/admin/products" className="admin-btn">
+            <ShoppingCart size={16} /> 商品管理
           </Link>
           <Link href="/admin/comments" className="admin-btn">
             <MessageSquare size={16} /> コメント管理
           </Link>
-          <Link href="/admin/articles/new" className="admin-btn admin-btn--primary">
-            <Wand2 size={16} /> 新しい記事を作成
+          <Link href="/admin/products/new" className="admin-btn admin-btn--primary">
+            <PlusSquare size={16} /> 新しい商品を作成
           </Link>
         </div>
       </div>

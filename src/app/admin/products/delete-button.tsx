@@ -1,14 +1,14 @@
 /**
- * 記事削除ボタン（クライアントコンポーネント）
- * 
+ * 商品削除ボタン（クライアントコンポーネント）
+ *
  * @description
  * 削除前に確認ダイアログを表示するインタラクティブなボタン。
- * サーバーアクションを呼び出して記事を削除します。
+ * サーバーアクションを呼び出して商品を削除します。
  */
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { handleDeleteArticle } from './actions';
+import { handleDeleteProduct } from './actions'; // handleDeleteArticleから変更
 import { Loader2, Trash2 } from 'lucide-react';
 
 /**
@@ -21,9 +21,8 @@ function SubmitButton() {
       type="submit"
       className="admin-btn admin-btn--danger"
       disabled={pending}
-      // 確認ダイアログをここに追加
       onClick={(e) => {
-        if (!confirm('この記事を本当に削除しますか？この操作は元に戻せません。')) {
+        if (!confirm('この商品を本当に削除しますか？この操作は元に戻せません。')) {
           e.preventDefault();
         }
       }}
@@ -37,12 +36,10 @@ function SubmitButton() {
   );
 }
 
-
-export default function DeleteButton({ articleId }: { articleId: string }) {
+export default function DeleteButton({ productId }: { productId: string }) {
   return (
-    // formタグに display: 'inline' を追加してレイアウト崩れを防ぐ
-    <form action={handleDeleteArticle} style={{ display: 'inline' }}>
-      <input type="hidden" name="articleId" value={articleId} />
+    <form action={handleDeleteProduct} style={{ display: 'inline' }}>
+      <input type="hidden" name="productId" value={productId} />
       <SubmitButton />
     </form>
   );
