@@ -1,26 +1,22 @@
 /**
  * サイト設定データモジュール
- * 
- * @description
- * Firestoreの `/settings/site_config` ドキュメントから
- * サイト全体のグローバル設定を取得・管理します。
  */
 
 import { getAdminDb } from './firebase-admin';
 import { logger } from './env';
 
-// SiteSettings の型定義
+// SiteSettings の型定義をデータベース設計に合わせて更新
 export interface SiteSettings {
   siteName?: string;
-  paymentAmount?: number;
-  accessDurationDays?: number;
+  siteDescription?: string; // 新規追加
+  guideContent?: string;    // 新規追加
   metaTitle?: string;
   metaDescription?: string;
   legalCommerceContent?: string;
   privacyPolicyContent?: string;
   termsOfServiceContent?: string;
-  copyright?: string; // コピーライトを追加
-  gtmId?: string; // Google Tag Manager ID（例: GTM-XXXXXXX）
+  copyright?: string;
+  gtmId?: string;
 }
 
 /**
@@ -39,6 +35,7 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
       return null;
     }
     
+    // as SiteSettings を使って型キャストする
     return docSnap.data() as SiteSettings;
 
   } catch (error) {

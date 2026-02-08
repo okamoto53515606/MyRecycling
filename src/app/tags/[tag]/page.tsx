@@ -1,23 +1,20 @@
 /**
- * タグ別記事一覧ページ
+ * タグ別商品一覧ページ
  * 
- * 指定されたタグを持つ記事を一覧表示します。
+ * 指定されたタグを持つ商品を一覧表示します。
  * ページネーションに対応しています。
- * 
- * 【サーバーコンポーネント】
- * 記事データはサーバーで取得し、HTMLとして配信されます。
  */
 
-import { getArticles, type Article } from '@/lib/data';
+import { getProducts } from '@/lib/data';
+import type { Product } from '@/lib/types'; // dataからtypesに変更
 import { getSiteSettings } from '@/lib/settings';
-import ArticleCard from '@/components/article-card';
+import ProductCard from '@/components/product-card';
 import Pagination from '@/components/pagination';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-const ARTICLES_PER_PAGE = 30;
+const PRODUCTS_PER_PAGE = 30;
 
-/** Next.js 15: params と searchParams は Promise 型 */
 interface TagPageProps {
   params: Promise<{ tag: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -35,13 +32,12 @@ export async function generateMetadata({ params, searchParams }: TagPageProps): 
   const siteName = settings?.siteName || '';
   
   const title = page > 1
-    ? `タグ「${tag}」の記事一覧 - ${page}ページ目 | ${siteName}`
-    : `タグ「${tag}」の記事一覧 | ${siteName}`;
+    ? `タグ「${tag}」の商品一覧 - ${page}ページ目 | ${siteName}`
+    : `タグ「${tag}」の商品一覧 | ${siteName}`;
 
   return {
     title,
-    description: `タグ「${tag}」に関する記事の一覧です。`,
-    // クエリパラメータを除いたURLを正規URLとして設定
+    description: `タグ「${tag}」に関する商品の一覧です。`,
     alternates: {
       canonical: `/tags/${tag}`,
     },
@@ -50,32 +46,30 @@ export async function generateMetadata({ params, searchParams }: TagPageProps): 
 
 
 export default async function TagPage({ params, searchParams }: TagPageProps) {
-  // Next.js 15: params と searchParams は Promise なので await が必要
   const { tag: rawTag } = await params;
   const resolvedSearchParams = await searchParams;
   const tag = decodeURIComponent(rawTag);
   const page = Number(resolvedSearchParams?.p || 1);
 
-  const { articles, totalCount } = await getArticles({ 
+  const { products, total } = await getProducts({ 
     page, 
-    limit: ARTICLES_PER_PAGE, 
+    limit: PRODUCTS_PER_PAGE, 
     tag 
   });
 
-  if (articles.length === 0) {
-    // 記事が1件もなければ404ページを表示
+  if (products.length === 0) {
     notFound();
   }
 
-  const totalPages = Math.ceil(totalCount / ARTICLES_PER_PAGE);
+  const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE);
 
   return (
     <div className="page-section container">
       <h1>タグ: {tag}</h1>
 
-      <div className="article-list">
-        {articles.map((article: Article, index: number) => (
-          <ArticleCard key={article.id} article={article} priority={index < 3} />
+      <div className="product-list">
+        {products.map((product: Product, index: number) => (
+          <ProductCard key={product.id} product={product} priority={index < 3} />
         ))}
       </div>
 

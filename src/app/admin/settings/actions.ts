@@ -1,9 +1,5 @@
 /**
  * サイト設定ページのサーバーアクション
- * 
- * @description
- * サイト設定フォームから送信されたデータを処理し、
- * Firestoreの /settings/site_config ドキュメントを更新します。
  */
 'use server';
 
@@ -14,18 +10,18 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth';
 import { logger } from '@/lib/env';
 
-// バリデーションスキーマ
+// バリデーションスキーマを新しい設計に更新
 const SettingsSchema = z.object({
   siteName: z.string().min(1, 'サイト名は必須です'),
-  paymentAmount: z.coerce.number().int().min(1, '金額は1円以上である必要があります'),
-  accessDurationDays: z.coerce.number().int().min(1, '日数は1日以上である必要があります'),
+  siteDescription: z.string().optional(),
+  guideContent: z.string().optional(),
   metaTitle: z.string().min(1, 'Meta Titleは必須です'),
   metaDescription: z.string().min(1, 'Meta Descriptionは必須です'),
-  legalCommerceContent: z.string(),
-  privacyPolicyContent: z.string(),
-  termsOfServiceContent: z.string(),
-  copyright: z.string(), // コピーライトを追加
-  gtmId: z.string().regex(/^(GTM-[A-Z0-9]+)?$/, 'GTM IDはGTM-で始まる形式で入力してください（例: GTM-XXXXXXX）'), // GTM ID
+  legalCommerceContent: z.string().optional(),
+  privacyPolicyContent: z.string().optional(),
+  termsOfServiceContent: z.string().optional(),
+  copyright: z.string().optional(),
+  gtmId: z.string().regex(/^(GTM-[A-Z0-9]+)?$/, 'GTM IDはGTM-で始まる形式で入力してください（例: GTM-XXXXXXX）').optional(),
 });
 
 // フォームの状態を表す型
@@ -36,9 +32,6 @@ export interface SettingsFormState {
 
 /**
  * サイト設定を更新するサーバーアクション
- * @param prevState - 以前のフォーム状態
- * @param formData - フォームデータ
- * @returns 新しいフォーム状態
  */
 export async function updateSettingsAction(
   prevState: SettingsFormState,
@@ -52,15 +45,15 @@ export async function updateSettingsAction(
 
   const validatedFields = SettingsSchema.safeParse({
     siteName: formData.get('siteName'),
-    paymentAmount: formData.get('paymentAmount'),
-    accessDurationDays: formData.get('accessDurationDays'),
+    siteDescription: formData.get('siteDescription'),
+    guideContent: formData.get('guideContent'),
     metaTitle: formData.get('metaTitle'),
     metaDescription: formData.get('metaDescription'),
     legalCommerceContent: formData.get('legalCommerceContent'),
     privacyPolicyContent: formData.get('privacyPolicyContent'),
     termsOfServiceContent: formData.get('termsOfServiceContent'),
-    copyright: formData.get('copyright'), // コピーライトを取得
-    gtmId: formData.get('gtmId') || '', // GTM ID
+    copyright: formData.get('copyright'),
+    gtmId: formData.get('gtmId') || '',
   });
 
   // バリデーション失敗
@@ -83,7 +76,8 @@ export async function updateSettingsAction(
     }, { merge: true });
 
     // 関連ページのキャッシュをクリア
-    revalidatePath('/'); // トップページ
+    revalidatePath('/'); // トップページ (siteDescription)
+    revalidatePath('/guide'); // ご利用ガイド
     revalidatePath('/legal/commerce');
     revalidatePath('/legal/privacy');
     revalidatePath('/legal/terms');

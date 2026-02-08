@@ -1,10 +1,5 @@
 /**
  * 管理画面サイドバー（Client Component）
- * 
- * @description
- * 開閉可能なサイドナビゲーション。
- * 閉じた状態ではアイコンのみ表示し、開いた状態ではラベルも表示。
- * 開閉状態はlocalStorageに保存され、リロード後も維持されます。
  */
 'use client';
 
@@ -13,20 +8,21 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Settings, 
-  ShoppingCart, // Newspaper から変更
+  ShoppingCart,
   Home, 
   LayoutDashboard, 
-  MessageSquare,
+  MapPin, // MapPin アイコンをインポート
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 
 const STORAGE_KEY = 'admin-sidebar-collapsed';
 
+// ナビゲーション項目を更新
 const navItems = [
   { href: '/admin', label: 'ダッシュボード', icon: LayoutDashboard },
-  { href: '/admin/products', label: '商品管理', icon: ShoppingCart }, // 変更
-  { href: '/admin/comments', label: 'コメント管理', icon: MessageSquare },
+  { href: '/admin/products', label: '商品管理', icon: ShoppingCart },
+  { href: '/admin/meeting-locations', label: '受け渡し場所', icon: MapPin }, // 新規追加
   { href: '/admin/settings', label: 'サイト設定', icon: Settings },
 ];
 
@@ -93,7 +89,7 @@ export function AdminSidebar() {
         </ul>
         <hr className="admin-nav__separator" />
         <Link 
-          href="/" 
+          href="/"
           className="admin-nav__link admin-nav__link--back"
           title={collapsed ? 'サイトを表示' : undefined}
         >

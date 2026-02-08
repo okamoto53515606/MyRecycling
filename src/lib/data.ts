@@ -2,143 +2,207 @@
  * データ取得モジュール
  * 
  * Firestore のデータを取得・管理します。
- * 主にサーバーコンポーネントやAPIルートから使用されます。
+ * 主にサーバーコンポーネントから使用されます。
  */
 
 import { getAdminDb } from './firebase-admin';
 import { logger } from './env';
-import type { Timestamp, DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import type { Timestamp, DocumentData, DocumentSnapshot, Query } from 'firebase-admin/firestore';
+import type { Product, MeetingLocation } from './types';
 
-// --- 型定義 ---
-
-export interface Comment {
-  id: string;
-  articleId: string;
-  userId: string;
-  content: string;
-  countryCode: string;
-  region: string;
-  dailyHashId: string;
-  createdAt: Timestamp;
-}
-
-export interface AdminComment extends Comment {
-  articleTitle: string;
-  articleSlug: string;
-  ipAddress: string;
-}
-
-export interface Article {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  access: 'free' | 'paid';
-  status: 'published' | 'draft';
-  tags: string[];
-  imageAssets?: { url: string; fileName: string; }[];
-  createdAt: any;
-  updatedAt: any;
-}
-
-export interface AdminArticleSummary {
-  id: string;
-  title: string;
-  status: 'published' | 'draft';
-  access: 'free' | 'paid';
-  updatedAt: any;
-}
+// --- 型定義 (サマリー) ---
 
 export interface AdminProductSummary {
   id: string;
   title: string;
   price: number;
   status: 'published' | 'draft';
-  updatedAt: any;
+  updatedAt: Timestamp;
 }
 
+// 受け渡し場所一覧で利用するサマリーデータ
+export interface AdminMeetingLocationSummary {
+  id:string;
+  name: string;
+  order: number;
+}
+
+// タグ情報
 export interface TagInfo {
   name: string;
   count: number;
 }
 
-interface PaginatedResponse<T> {
-  items: T[];
-  hasMore?: boolean; // admin用
-  totalCount?: number; // client用
-}
+// --- Helper --- 
 
-// --- 定数 ---
+const convertTimestamp = (timestamp: Timestamp | Date): Date => {
+  if (timestamp instanceof Date) return timestamp;
+  return timestamp.toDate();
+};
 
-const ARTICLES_PAGE_SIZE = 30;
-const ADMIN_PAGE_SIZE = 100;
+// Firestore のドキュメントから Product 型へ変換
+const docToProduct = (doc: DocumentSnapshot<DocumentData>): Product => {
+  const data = doc.data();
+  if (!data) throw new Error('Document data not found');
+  return {
+    id: doc.id,
+    title: data.title,
+    status: data.status,
+    content: data.content,
+    excerpt: data.excerpt,
+    price: data.price,
+    condition: data.condition,
+    referenceURL: data.referenceURL,
+    tags: data.tags || [],
+    imageAssets: data.imageAssets || [],
+    authorId: data.authorId,
+    createdAt: convertTimestamp(data.createdAt),
+    updatedAt: convertTimestamp(data.updatedAt),
+  };
+};
 
-// --- 利用者サイト向け関数 ---
+// --- Public Product Data ---
 
-export async function getArticles(options: { page?: number; limit?: number; tag?: string }): Promise<{ articles: Article[]; totalCount: number }> {
-  const { page = 1, limit = ARTICLES_PAGE_SIZE, tag } = options;
+export async function getProducts({
+  page = 1,
+  limit = 10,
+  tag,
+}: {
+  page?: number;
+  limit?: number;
+  tag?: string;
+}): Promise<{ products: Product[]; total: number }> {
   try {
     const db = getAdminDb();
-    let query = db.collection('articles').where('status', '==', 'published');
+    let query: Query<DocumentData> = db
+      .collection('products')
+      .where('status', '==', 'published');
+
     if (tag) {
       query = query.where('tags', 'array-contains', tag);
     }
+
+    // Get total count for pagination
     const countSnapshot = await query.count().get();
-    const totalCount = countSnapshot.data().count;
-    const articlesSnapshot = await query
+    const total = countSnapshot.data().count;
+    
+    // Add order and pagination to the query
+    query = query.orderBy('createdAt', 'desc').limit(limit).offset((page - 1) * limit);
+
+    const snapshot = await query.get();
+
+    if (snapshot.empty) {
+      return { products: [], total: 0 };
+    }
+
+    const products = snapshot.docs.map(doc => docToProduct(doc));
+
+    return { products, total };
+  } catch (error) {
+    logger.error('[data.ts] getProducts failed:', error);
+    return { products: [], total: 0 };
+  }
+}
+
+// --- Admin Product Data ---
+
+const ADMIN_PAGE_LIMIT = 15;
+
+export async function getAdminProducts(page: number = 1): Promise<{ items: AdminProductSummary[], hasMore: boolean }> {
+  try {
+    const db = getAdminDb();
+    const productsRef = db.collection('products');
+    
+    const limit = ADMIN_PAGE_LIMIT;
+    
+    const snapshot = await productsRef
       .orderBy('updatedAt', 'desc')
-      .limit(limit)
+      .limit(limit + 1)
       .offset((page - 1) * limit)
       .get();
-    if (articlesSnapshot.empty) {
-      return { articles: [], totalCount: 0 };
-    }
-    const articles = articlesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
-    return { articles, totalCount };
+
+    const hasMore = snapshot.docs.length > limit;
+
+    const items = snapshot.docs.slice(0, limit).map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        price: data.price,
+        status: data.status,
+        updatedAt: data.updatedAt,
+      } as AdminProductSummary;
+    });
+
+    return { items, hasMore };
   } catch (error) {
-    logger.error('[data.ts] getArticles failed:', error);
-    return { articles: [], totalCount: 0 };
+    logger.error('[data.ts] getAdminProducts failed:', error);
+    return { items: [], hasMore: false };
   }
 }
 
-export async function getArticleBySlug(slug: string): Promise<Article | undefined> {
+
+export async function getProduct(id: string): Promise<Product | null> {
   try {
     const db = getAdminDb();
-    const articlesSnapshot = await db.collection('articles').where('slug', '==', slug).where('status', '==', 'published').limit(1).get();
-    if (articlesSnapshot.empty) {
-      return undefined;
-    }
-    const doc = articlesSnapshot.docs[0];
-    const data = doc.data();
-    return { id: doc.id, ...data } as Article;
+    const docSnap = await db.collection('products').doc(id).get();
+    if (!docSnap.exists) return null;
+    return docToProduct(docSnap);
   } catch (error) {
-    logger.error(`[data.ts] getArticleBySlug failed for slug "${slug}":`, error);
-    return undefined;
+    logger.error(`商品(${id})の取得に失敗:', error`);
+    return null;
   }
 }
 
-export async function getCommentsForArticle(articleId: string, limit: number = 100): Promise<Comment[]> {
+// --- Meeting Location Data ---
+
+export async function getMeetingLocations(): Promise<AdminMeetingLocationSummary[]> {
   try {
     const db = getAdminDb();
-    const commentsSnapshot = await db.collection('comments').where('articleId', '==', articleId).orderBy('createdAt', 'desc').limit(limit).get();
-    if (commentsSnapshot.empty) {
-      return [];
-    }
-    const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
-    return comments.reverse();
+    const snapshot = await db.collection('meeting_locations').orderBy('order', 'asc').get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      name: doc.data().name,
+      order: doc.data().order,
+    }));
   } catch (error) {
-    logger.error(`[data.ts] getCommentsForArticle failed for articleId "${articleId}":`, error);
+    logger.error('[data.ts] getMeetingLocations failed:', error);
     return [];
   }
 }
 
+export async function getMeetingLocation(id: string): Promise<MeetingLocation | null> {
+  try {
+    const db = getAdminDb();
+    const docSnap = await db.collection('meeting_locations').doc(id).get();
+    if (!docSnap.exists) return null;
+
+    const data = docSnap.data();
+    if (!data) return null;
+
+    return {
+      id: docSnap.id,
+      name: data.name,
+      description: data.description,
+      photoURL: data.photoURL,
+      googleMapEmbedURL: data.googleMapEmbedURL,
+      order: data.order,
+    };
+  } catch (error) {
+    logger.error(`受け渡し場所(${id})の取得に失敗:', error`);
+    return null;
+  }
+}
+
+// --- Tag Data ---
+
 export async function getTags(limit: number = 30): Promise<TagInfo[]> {
   try {
     const db = getAdminDb();
-    const articlesSnapshot = await db.collection('articles').where('status', '==', 'published').select('tags').get();
+    const productsSnapshot = await db.collection('products').where('status', '==', 'published').select('tags').get();
     const tagCounts: { [key: string]: number } = {};
-    articlesSnapshot.docs.forEach(doc => {
+    productsSnapshot.docs.forEach(doc => {
       const tags = doc.data().tags;
       if (Array.isArray(tags)) {
         tags.forEach(tag => {
@@ -151,117 +215,5 @@ export async function getTags(limit: number = 30): Promise<TagInfo[]> {
   } catch (error) {
     logger.error('[data.ts] getTags failed:', error);
     return [];
-  }
-}
-
-// --- 管理画面向け関数 ---
-
-export async function getAdminArticles(page: number = 1): Promise<PaginatedResponse<AdminArticleSummary>> {
-  try {
-    const db = getAdminDb();
-    let query = db.collection('articles').orderBy('updatedAt', 'desc');
-    const limit = ADMIN_PAGE_SIZE;
-    if (page > 1) {
-      const offset = (page - 1) * limit;
-      const previousDocs = await query.limit(offset).get();
-      if (!previousDocs.empty) {
-        const lastVisible = previousDocs.docs[previousDocs.docs.length - 1];
-        query = query.startAfter(lastVisible);
-      }
-    }
-    const snapshot = await query.limit(limit + 1).get();
-    if (snapshot.empty) {
-      return { items: [], hasMore: false };
-    }
-    const hasMore = snapshot.docs.length > limit;
-    const items = snapshot.docs.slice(0, limit).map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        title: data.title,
-        status: data.status,
-        access: data.access,
-        updatedAt: data.updatedAt,
-      };
-    });
-    return { items, hasMore };
-  } catch (error) {
-    logger.error('[data.ts] getAdminArticles failed:', error);
-    return { items: [], hasMore: false };
-  }
-}
-
-export async function getAdminProducts(page: number = 1): Promise<PaginatedResponse<AdminProductSummary>> {
-  try {
-    const db = getAdminDb();
-    let query = db.collection('products').orderBy('updatedAt', 'desc');
-    const limit = ADMIN_PAGE_SIZE;
-    if (page > 1) {
-      const offset = (page - 1) * limit;
-      const previousDocs = await query.limit(offset).get();
-      if (!previousDocs.empty) {
-        const lastVisible = previousDocs.docs[previousDocs.docs.length - 1];
-        query = query.startAfter(lastVisible);
-      }
-    }
-    const snapshot = await query.limit(limit + 1).get();
-    if (snapshot.empty) {
-      return { items: [], hasMore: false };
-    }
-    const hasMore = snapshot.docs.length > limit;
-    const items = snapshot.docs.slice(0, limit).map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        title: data.title,
-        price: data.price,
-        status: data.status,
-        updatedAt: data.updatedAt,
-      };
-    });
-    return { items, hasMore };
-  } catch (error) {
-    logger.error('[data.ts] getAdminProducts failed:', error);
-    return { items: [], hasMore: false };
-  }
-}
-
-export async function getAdminComments(page: number = 1): Promise<PaginatedResponse<AdminComment>> {
-  try {
-    const db = getAdminDb();
-    let query = db.collection('comments').orderBy('createdAt', 'desc');
-    const limit = ADMIN_PAGE_SIZE;
-    if (page > 1) {
-      const offset = (page - 1) * limit;
-      const previousDocs = await query.limit(offset).get();
-      if (!previousDocs.empty) {
-        const lastVisible = previousDocs.docs[previousDocs.docs.length - 1];
-        query = query.startAfter(lastVisible);
-      }
-    }
-    const commentsSnapshot = await query.limit(limit + 1).get();
-    if (commentsSnapshot.empty) {
-      return { items: [], hasMore: false };
-    }
-    const hasMore = commentsSnapshot.docs.length > limit;
-    const commentsData = commentsSnapshot.docs.slice(0, limit).map(doc => ({ id: doc.id, ...doc.data() } as (Comment & {ipAddress: string})));
-    const articleIds = [...new Set(commentsData.map(c => c.articleId))];
-    let articlesMap = new Map();
-    if (articleIds.length > 0) {
-      const articlesSnapshot = await db.collection('articles').where('__name__', 'in', articleIds).get();
-      articlesMap = new Map(articlesSnapshot.docs.map(doc => [doc.id, {title: doc.data().title, slug: doc.data().slug}]));
-    }
-    const items = commentsData.map(comment => {
-      const articleInfo = articlesMap.get(comment.articleId);
-      return {
-        ...comment,
-        articleTitle: articleInfo?.title || '不明な記事',
-        articleSlug: articleInfo?.slug || '',
-      } as AdminComment;
-    });
-    return { items, hasMore };
-  } catch (error) {
-    logger.error('[data.ts] getAdminComments failed:', error);
-    return { items: [], hasMore: false };
   }
 }

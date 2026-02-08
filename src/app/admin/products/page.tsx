@@ -23,7 +23,8 @@ export default async function ProductListPage({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const page = Number(searchParams?.page || 1);
-  const { items: products, hasMore } = await getAdminProducts(page);
+  // データ取得部分をより堅牢な記述に変更
+  const { items: products = [], hasMore = false } = (await getAdminProducts(page)) || {};
 
   return (
     <>

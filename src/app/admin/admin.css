@@ -44,6 +44,21 @@ body.admin-body {
   padding: 2rem;
 }
 
+/* Content Header (for list pages etc.) */
+.admin-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-content-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+
 /*==================================================
   SIDEBAR (admin-sidebar.tsx)
 ==================================================*/
@@ -361,6 +376,11 @@ body.admin-body {
 .admin-thumbnail {
   position: relative;
 }
+
+.admin-thumbnail.is-single {
+    max-width: 120px;
+}
+
 .admin-thumbnail img {
   width: 100%;
   height: auto;

@@ -1,9 +1,5 @@
 /**
  * サイト設定フォーム（クライアントコンポーネント）
- * 
- * @description
- * useActionState を使用して、サーバーアクションの結果を非同期的、
- * かつインタラクティブに表示します。
  */
 'use client';
 
@@ -14,8 +10,7 @@ import { updateSettingsAction, type SettingsFormState } from './actions';
 import { Loader2 } from 'lucide-react';
 
 /**
- * 送信ボタンコンポーネント
- * useFormStatus を使って、フォームの送信状態に応じて表示を切り替えます。
+ * 送信ボタン
  */
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -41,16 +36,14 @@ interface SettingsFormProps {
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const initialState: SettingsFormState = { status: 'idle', message: '' };
   const [state, formAction] = useActionState(updateSettingsAction, initialState);
-  const formRef = useRef<HTMLFormElement>(null);
 
-  // サーバーアクションの完了後、フォームの状態をリセット
+  // サーバーアクションの完了後、通知メッセージを一定時間で消す
   useEffect(() => {
-    if (state.status === 'success') {
-      // 成功メッセージを3秒表示
+    if (state.status !== 'idle') {
       const timer = setTimeout(() => {
-        state.status = 'idle';
-        state.message = '';
-      }, 3000);
+        // このコンポーネントでは状態を直接リセットせず、
+        // ユーザーの次の操作に備える（メッセージが残っていても操作は可能）
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [state]);
@@ -59,7 +52,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const settings = initialSettings || {};
 
   return (
-    <form action={formAction} ref={formRef}>
+    <form action={formAction}>
       {/* フォーム送信結果の通知 */}
       {state.message && (
         <div 
@@ -71,75 +64,71 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
       )}
 
       {/* --- 基本設定 --- */}
+      <h2 className="admin-section-title">基本設定</h2>
       <div className="admin-form-group">
         <label htmlFor="siteName">サイト名</label>
-        <input type="text" id="siteName" name="siteName" className="admin-input" defaultValue={settings.siteName} />
+        <input type="text" id="siteName" name="siteName" className="admin-form-input" defaultValue={settings.siteName} />
         <small>サイトのヘッダーなどに表示されます。</small>
       </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="siteDescription">サイトの概要説明 (Markdown)</label>
+        <textarea id="siteDescription" name="siteDescription" className="admin-form-input" rows={5} defaultValue={settings.siteDescription}></textarea>
+        <small>トップページなどに表示される、サイト全体の紹介文です。</small>
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="guideContent">ご利用ガイド (Markdown)</label>
+        <textarea id="guideContent" name="guideContent" className="admin-form-input" rows={15} defaultValue={settings.guideContent}></textarea>
+        <small>「ご利用ガイド」ページに表示される内容です。</small>
+      </div>
       
-      <div className="admin-form-group">
-        <label htmlFor="paymentAmount">課金金額 (円)</label>
-        <input type="number" id="paymentAmount" name="paymentAmount" className="admin-input" defaultValue={settings.paymentAmount} />
-        <small>Stripeで決済される金額です。</small>
-      </div>
-
-      <div className="admin-form-group">
-        <label htmlFor="accessDurationDays">アクセス有効日数 (日)</label>
-        <input type="number" id="accessDurationDays" name="accessDurationDays" className="admin-input" defaultValue={settings.accessDurationDays} />
-        <small>一度の課金で有料記事を閲覧できる日数です。</small>
-      </div>
-
-      <hr style={{margin: '2rem 0'}}/>
-
       {/* --- SEO設定 --- */}
+      <h2 className="admin-section-title">SEO設定</h2>
       <div className="admin-form-group">
         <label htmlFor="metaTitle">トップページのmeta title</label>
-        <input type="text" id="metaTitle" name="metaTitle" className="admin-input" defaultValue={settings.metaTitle} />
+        <input type="text" id="metaTitle" name="metaTitle" className="admin-form-input" defaultValue={settings.metaTitle} />
       </div>
 
       <div className="admin-form-group">
         <label htmlFor="metaDescription">トップページのmeta description</label>
-        <textarea id="metaDescription" name="metaDescription" className="admin-textarea" rows={2} defaultValue={settings.metaDescription}></textarea>
+        <textarea id="metaDescription" name="metaDescription" className="admin-form-input" rows={3} defaultValue={settings.metaDescription}></textarea>
       </div>
       
-      <hr style={{margin: '2rem 0'}}/>
-      
       {/* --- 法務ページ設定 --- */}
+      <h2 className="admin-section-title">ページコンテンツ設定</h2>
       <div className="admin-form-group">
         <label htmlFor="legalCommerceContent">特定商取引法に基づく表記</label>
-        <textarea id="legalCommerceContent" name="legalCommerceContent" className="admin-textarea" rows={10} defaultValue={settings.legalCommerceContent}></textarea>
+        <textarea id="legalCommerceContent" name="legalCommerceContent" className="admin-form-input" rows={15} defaultValue={settings.legalCommerceContent}></textarea>
       </div>
       
       <div className="admin-form-group">
         <label htmlFor="privacyPolicyContent">プライバシーポリシー</label>
-        <textarea id="privacyPolicyContent" name="privacyPolicyContent" className="admin-textarea" rows={10} defaultValue={settings.privacyPolicyContent}></textarea>
+        <textarea id="privacyPolicyContent" name="privacyPolicyContent" className="admin-form-input" rows={15} defaultValue={settings.privacyPolicyContent}></textarea>
       </div>
 
       <div className="admin-form-group">
         <label htmlFor="termsOfServiceContent">利用規約</label>
-        <textarea id="termsOfServiceContent" name="termsOfServiceContent" className="admin-textarea" rows={10} defaultValue={settings.termsOfServiceContent}></textarea>
+        <textarea id="termsOfServiceContent" name="termsOfServiceContent" className="admin-form-input" rows={15} defaultValue={settings.termsOfServiceContent}></textarea>
       </div>
 
-      <hr style={{margin: '2rem 0'}}/>
-
-      {/* --- フッター設定 --- */}
+      {/* --- フッターと外部連携 --- */}
+      <h2 className="admin-section-title">その他</h2>
       <div className="admin-form-group">
         <label htmlFor="copyright">フッターのコピーライト</label>
-        <input type="text" id="copyright" name="copyright" className="admin-input" defaultValue={settings.copyright} />
-        <small>例: © 2024 My Homepage. All Rights Reserved.</small>
+        <input type="text" id="copyright" name="copyright" className="admin-form-input" defaultValue={settings.copyright} />
+        <small>例: © 2024 My Recycle Shop. All Rights Reserved.</small>
       </div>
 
-      <hr style={{margin: '2rem 0'}}/>
-
-      {/* --- GTM (Google Tag Manager) 設定 --- */}
       <div className="admin-form-group">
         <label htmlFor="gtmId">Google Tag Manager ID</label>
-        <input type="text" id="gtmId" name="gtmId" className="admin-input" defaultValue={settings.gtmId} placeholder="GTM-XXXXXXX" />
+        <input type="text" id="gtmId" name="gtmId" className="admin-form-input" defaultValue={settings.gtmId} placeholder="GTM-XXXXXXX" />
         <small>GTMの管理画面で確認できるコンテナIDを入力してください（例: GTM-XXXXXXX）。空欄の場合、GTMは無効になります。</small>
       </div>
 
-
-      <SubmitButton />
+      <div className="admin-form-actions">
+        <SubmitButton />
+      </div>
     </form>
   );
 }
