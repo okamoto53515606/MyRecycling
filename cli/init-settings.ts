@@ -1,8 +1,12 @@
 /**
  * CLI: サイト設定初期化コマンド
  *
- * Firestoreの 'settings' コレクションに、サイト全体の設定を
- * 格納する 'site_config' ドキュメントを作成・初期化します。
+ * Firestoreの各コレクションに初期データを投入します。
+ * - settings
+ * - meeting_locations
+ * - available_weekdays
+ * - available_times
+ * - unavailable_dates
  *
  * 【使い方】
  * npm run init-settings
@@ -12,7 +16,7 @@
  */
 import 'dotenv/config';
 import { getAdminDb } from '../src/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // 本番環境での実行を防止
 if (process.env.NODE_ENV === 'production') {
@@ -22,43 +26,66 @@ if (process.env.NODE_ENV === 'production') {
 
 // --- 以下に設定値を定義 ---
 
-const siteConfig = {
-  siteName: '【要書き換え】',
-  paymentAmount: 500,
-  accessDurationDays: 30,
-  metaTitle: '【要書き換え】',
-  metaDescription: '【要書き換え】',
-  copyright: `© ${new Date().getFullYear()} 【要書き換え】. All Rights Reserved.`,
+const FIXED_DATE = '2026-02-08';
+const FIXED_YEAR = '2026';
+const FIXED_TIMESTAMP = Timestamp.fromDate(new Date('2026-02-08T00:00:00Z'));
 
-  // GTM (Google Tag Manager) ID
-  // GTMを使用しない場合は空文字のままでOK
+// 1. settingsコレクション
+const siteConfig = {
+  siteName: 'okamoのリサイクル',
+  siteDescription: `
+### 東京都国立市近辺にお住まいの方向けの小さなリサイクルサービスです
+
+このサイトは、まだ使えるけれど自分では使わなくなったモノを、必要としている人へ繋ぐための場所です。
+
+#### ご利用の流れ
+
+1.  気になる商品を見つけたら、受け取りたい日時と場所を選んで注文します。
+2.  注文が完了すると、指定のメールアドレスに確認の連絡が届きます。
+3.  当日、指定の場所で商品を受け取ります。
+4.  商品を確認後、問題がなければ運営者がサイト上で決済を確定します。
+
+#### お支払いのタイミング
+
+**実際の商品を見てから判断できるので安心です。**
+お支払いは、商品を実際に受け取った後、運営者が「受け取り完了」手続きを行うことで確定します。受け取り前にキャンセルしたい場合は、費用は一切かかりません。
+
+#### 受け渡し場所
+
+- **くにたち北市民プラザのロビー**
+- **国立駅南口すぐの旧国立駅舎**
+
+いずれも、誰でも気兼ねなく利用できる公共のスペースです。
+
+#### 返品・キャンセルについて
+
+万が一、商品に満足いただけなかった場合でもご安心ください。
+**商品受け取り後、14日以内であれば返品・全額返金**を承ります。
+`.trim(),
+  metaTitle: 'okamoのリサイクル | 国立市周辺での手渡しリサイクル',
+  metaDescription: '国立市周辺（くにたち北市民プラザ、旧国立駅舎）で直接会って品物を受け渡す、小さなリサイクルサービス。安心して取引できます。',
+  copyright: `© ${FIXED_YEAR} okamoのリサイクル. All Rights Reserved.`,
+  guideContent: '作成中',
   gtmId: '', // 例: GTM-XXXXXXX
 
-  // A6. 特定商取引法に基づく表記
+  // 特定商取引法に基づく表記
   legalCommerceContent: `
-## 販売業者
+## 事業者の名称
 
-【要書き換え】屋号または会社名
+【要書き換え】氏名または屋号
 
-## 運営統括責任者
+## 事業者の所在地
 
-【要書き換え】氏名
+【要書き換え】住所（請求があれば遅滞なく開示します）
 
-## 所在地
+## 事業者の連絡先
 
-【要書き換え】住所（個人の場合、請求があれば遅滞なく開示）
-
-## 電話番号
-
-【要書き換え】電話番号（個人の場合、請求があれば遅滞なく開示）
-
-## メールアドレス
-
-【要書き換え】お問い合わせ用メールアドレス
+【要書き換え】電話番号（請求があれば遅滞なく開示します）
+メールアドレス: 【要書き換え】連絡先メールアドレス
 
 ## 販売価格
 
-500円（税込）
+各商品ページに記載の金額（税込）
 
 ## 追加手数料
 
@@ -67,81 +94,46 @@ const siteConfig = {
 ## 支払方法
 
 クレジットカード（VISA、Mastercard、American Express、JCB）
-
-※決済はStripe社のシステムを利用
+※決済はStripe社のシステムを利用します。
 
 ## 支払時期
 
-商品注文時に即時決済
+**商品受け取り後**に、運営者が「受け取り完了」処理を行った時点で決済が確定します。
+（注文時には、クレジットカードの与信枠確保のみが行われます）
 
 ## 商品の引渡時期
 
-決済完了後、即時（有料記事へのアクセス権が付与されます）
-
-## 商品の内容
-
-当サイトの有料記事閲覧権（30日間）
+注文時に指定された日時に、指定の場所で手渡しします。
 
 ## 返品・キャンセルについて
 
-デジタルコンテンツという商品の性質上、購入後の返品・返金には原則として応じかねます。
+### 1. 受け取り前のキャンセル
 
-ただし、以下の場合は個別に対応いたします。
+注文後、商品の受け取り前であれば、マイページからいつでも無料でキャンセル可能です。費用は一切かかりません。
 
-- 技術的な問題により記事が閲覧できない場合
-- 明らかな二重課金が発生した場合
+### 2. 受け取り後の返品
 
-上記に該当する場合は、メールにてお問い合わせください。
-
-## 退会（アカウント削除）について
-
-退会された場合、有料記事の閲覧有効期間が残っていても、有料記事の閲覧はできなくなります。
-
-また、退会に伴う返金はお受けできません。
-
-## 動作環境
-
-以下のブラウザの最新版を推奨します。
-
-- Google Chrome
-- Microsoft Edge
-- Mozilla Firefox
-- Apple Safari
+商品に満足いただけなかった場合、**商品受け取り後14日以内**にマイページから返品依頼をいただくことで、返品および返金に対応いたします。返金は、ご利用のクレジットカード経由で行われます。
 `.trim(),
 
-  // A7. プライバシーポリシー
+  // プライバシーポリシー
   privacyPolicyContent: `
-【要書き換え】屋号または会社名（以下「当サイト」）は、当サイトが提供するサービス（以下「本サービス」）における、ユーザーの個人情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。
+okamoのリサイクル（以下「当サイト」）は、当サイトが提供するサービス（以下「本サービス」）における、ユーザーの個人情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。
 
 ## 1. 収集する情報
 
 当サイトは、本サービスの提供にあたり、以下の情報を収集します。
 
-### (1) Googleアカウント情報
-
-- メールアドレス
-- 表示名
-- プロフィール画像URL
-
-### (2) 決済情報
-
-- 決済日時
-- 決済金額
-- Stripeが発行する決済ID
-
-※クレジットカード番号等の機密情報は、決済代行会社（Stripe社）が管理しており、当サイトでは保持しません。
-
-### (3) アクセス情報
-
-- アクセス日時
-- IPアドレス（不正利用防止の目的で一時的に記録）
+- **Googleアカウント情報**: メールアドレス、表示名、プロフィール画像URL
+- **注文情報**: 注文日時、商品情報、指定された受け渡し場所・日時
+- **決済関連情報**: Stripeが発行する決済ID（クレジットカード番号自体は当サイトで保持しません）
+- **アクセス情報**: IPアドレス（不正利用防止のため）
 
 ## 2. 情報の利用目的
 
 収集した情報は、以下の目的で利用します。
 
-- 本サービスの提供および運営
-- 有料コンテンツへのアクセス権管理
+- 本サービスの提供および運営（商品の受け渡し等）
 - ユーザーからのお問い合わせへの対応
 - 利用規約に違反する行為への対応
 - サービスの改善および新機能の開発
@@ -158,16 +150,14 @@ const siteConfig = {
 
 当サイトでは、以下の外部サービスを利用しています。
 
-### (1) Firebase（Google LLC）
+### Firebase（Google LLC）
 
 認証およびデータ管理に使用しています。
-
 - [Googleのプライバシーポリシー](https://policies.google.com/privacy)
 
-### (2) Google Analytics（Google LLC）
+### Google Analytics（Google LLC）
 
 当サイトでは、サービス向上のためGoogle Analytics 4を使用しています。Google Analyticsは、Cookieを使用してアクセス情報（閲覧ページ、滞在時間、デバイス情報、おおよその地域等）を収集します。収集されたデータはGoogle社（米国）のサーバーで処理されます。なお、このデータは個人を特定する情報と紐づけておりません。
-
 - [Googleのプライバシーポリシー](https://policies.google.com/privacy)
 - [Google Analyticsのデータ収集について](https://support.google.com/analytics/answer/12017362)
 
@@ -191,138 +181,179 @@ Stripe, Inc.（アメリカ合衆国カリフォルニア州）
 
 ## 6. セキュリティ
 
-当サイトは、個人情報の漏洩、滅失、毀損を防止するため、適切なセキュリティ対策を講じています。
+当サイトは、個人情報の漏洩、滅失、毀損を防止するため、通信の暗号化（HTTPS）など適切なセキュリティ対策を講じています。
 
-- 通信の暗号化（HTTPS）
-- 認証情報の安全な管理（HttpOnlyセッションクッキー）
-- アクセス制御の実施
-
-## 7. 退会（アカウント削除）時のデータ取り扱い
-
-ユーザーが退会（アカウント削除）された場合、以下のとおりデータを取り扱います。
-
-### (1) 削除されるデータ
-
-- アカウント情報（メールアドレス、表示名、プロフィール画像URL）
-- 有料記事のアクセス権情報
-
-### (2) 保持されるデータ
-
-- 投稿済みのコメント
-- 決済履歴（会計・税務上の理由により、法定期間保持します）
-
-## 8. お問い合わせ
+## 7. お問い合わせ
 
 個人情報の取り扱いに関するお問い合わせは、以下までご連絡ください。
+メールアドレス: 【要書き換え】連絡先メールアドレス
 
-メールアドレス: 【要書き換え】お問い合わせ用メールアドレス
+## 8. 改定
 
-## 9. 改定
+当サイトは、必要に応じて本ポリシーを改定することがあります。
 
-当サイトは、必要に応じて本ポリシーを改定することがあります。重要な変更がある場合は、サイト上でお知らせします。
-
-制定日: 【要書き換え】YYYY年MM月DD日
+制定日: ${FIXED_DATE}
 `.trim(),
 
-  // A8. 利用規約
+  // 利用規約
   termsOfServiceContent: `
-この利用規約（以下「本規約」）は、【要書き換え】屋号または会社名（以下「当サイト」）が提供するサービス（以下「本サービス」）の利用条件を定めるものです。ユーザーの皆様には、本規約に同意いただいた上で、本サービスをご利用いただきます。
+この利用規約（以下「本規約」）は、okamoのリサイクル（以下「当サイト」）が提供するサービス（以下「本サービス」）の利用条件を定めるものです。
 
 ## 第1条（適用）
 
-1. 本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されます。
-2. ユーザーの個人情報の取り扱いについては、別途定める「プライバシーポリシー」に従うものとします。
+本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されます。
 
 ## 第2条（利用登録）
 
-1. 本サービスの利用を希望する方は、Googleアカウントによる認証をもって利用登録を行うものとします。
-2. 当サイトは、以下の場合に利用登録を拒否することがあります。
-   - 虚偽の情報を登録した場合
-   - 過去に本規約に違反したことがある場合
-   - その他、当サイトが不適切と判断した場合
+本サービスの利用を希望する方は、Googleアカウントによる認証をもって利用登録を行うものとします。
 
-## 第3条（有料サービス）
+## 第3条（取引の流れ）
 
-1. 有料記事の閲覧には、所定の料金（500円・税込）をお支払いいただく必要があります。
-2. 決済完了後、30日間すべての有料記事を閲覧できます。
-3. 購入後のキャンセル・返金は、特定商取引法に基づく表記に記載の場合を除き、お受けできません。
+1.  ユーザーは商品を選択し、希望する受け渡し日時と場所を指定して注文します。
+2.  注文時、クレジットカードの与信枠が確保されます（オーソリ）。この時点では決済は確定しません。
+3.  指定の日時・場所で商品の受け渡しを行います。
+4.  商品を受け取った後、運営者が「受け取り完了」手続きを行います。この操作をもって決済が確定し、代金が支払われます。
 
-## 第4条（禁止事項）
+## 第4条（キャンセル・返品）
 
-ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。
+1.  **受け取り前のキャンセル**: ユーザーは、商品の受け取り前であれば、マイページからいつでも注文をキャンセルできます。キャンセルに伴う費用は発生しません。
+2.  **受け取り後の返品**: 商品の受け取り後、14日以内に当サイト所定の方法で連絡があった場合に限り、返品・返金を受け付けます。
 
+## 第5条（禁止事項）
+
+ユーザーは、以下の行為をしてはなりません。
 - 法令または公序良俗に違反する行為
-- 犯罪行為に関連する行為
-- 当サイトのサーバーまたはネットワークの機能を破壊、妨害する行為
-- 本サービスのコンテンツを無断で複製、転載、再配布する行為
-- 他のユーザーのアカウントを不正に使用する行為
-- 他のユーザーに対する誹謗中傷、嫌がらせ行為
-- 当サイトのサービス運営を妨害する行為
-- 不正アクセスを試みる行為
-- その他、当サイトが不適切と判断する行為
+- 虚偽の情報で登録、注文する行為
+- 正当な理由なく商品の受け取りを拒否する行為
+- 他のユーザーや当サイトに不利益、損害を与える行為
 
-## 第5条（本サービスの提供の停止）
+## 第6条（免責事項）
 
-当サイトは、以下の場合に、ユーザーへの事前通知なく本サービスの全部または一部の提供を停止することがあります。
+- 当サイトは、商品の完全性、正確性を保証するものではありません。取引はユーザー自身の責任で行うものとします。
+- 通信回線やコンピュータの障害によるシステムの中断・遅滞・中止・データの消失、データへの不正アクセスにより生じた損害、その他本サービスに関してユーザーに生じた損害について、当サイトは一切責任を負わないものとします。
 
-- システムの保守点検を行う場合
-- 火災、停電、天災等により提供が困難になった場合
-- その他、当サイトが必要と判断した場合
+## 第7条（本サービスの変更・終了）
 
-## 第6条（退会）
+当サイトは、ユーザーに通知することなく、本サービスの内容を変更し、または本サービスの提供を終了することができるものとします。
 
-1. ユーザーは、当サイト所定の手続きにより、いつでも退会（アカウント削除）することができます。
-2. 退会した場合、有料記事の閲覧有効期間が残っていても、有料記事の閲覧はできなくなります。
-3. 退会に伴う返金はお受けできません。
-4. 退会後のアカウント復元はできません。
-5. 退会時のデータの取り扱いについては、プライバシーポリシーをご参照ください。
+## 第8条（準拠法・管轄裁判所）
 
-## 第7条（利用制限および登録抹消）
+本規約の解釈にあたっては、日本法を準拠法とします。本サービスに関して紛争が生じた場合には、東京地方裁判所を第一審の専属的合意管轄とします。
 
-当サイトは、ユーザーが本規約に違反した場合、事前の通知なく利用制限または登録抹消を行うことがあります。この場合、支払済みの料金の返金は行いません。
-
-## 第8条（免責事項）
-
-1. 当サイトは、本サービスに関して、その完全性、正確性、確実性、有用性等について保証しません。
-2. 当サイトは、ユーザーが本サービスを利用することによって生じた損害について、一切の責任を負いません。ただし、当サイトの故意または重過失による場合はこの限りではありません。
-
-## 第9条（サービス内容の変更）
-
-当サイトは、ユーザーへの事前通知なく、本サービスの内容を変更することがあります。
-
-## 第10条（利用規約の変更）
-
-当サイトは、必要と判断した場合には、ユーザーへの事前通知なく本規約を変更することがあります。変更後の利用規約は、サイト上に掲載した時点から効力を生じるものとします。
-
-## 第11条（準拠法・管轄裁判所）
-
-1. 本規約の解釈にあたっては、日本法を準拠法とします。
-2. 本サービスに関して紛争が生じた場合には、【要書き換え】地名 地方裁判所を第一審の専属的合意管轄とします。
-
----
-
-制定日: 【要書き換え】YYYY年MM月DD日
+制定日: ${FIXED_DATE}
 `.trim(),
 };
 
+// 2. meeting_locationsコレクション
+const meetingLocations = [
+  {
+    name: 'くにたち北市民プラザのロビー',
+    description: `
+北市民プラザのロビーは施設の利用に関係なくどなたでも利用できます。ちょっとした打ち合わせや、お仕事や勉強の他、休憩スペースとして利用可能な場所です。
+[詳細はこちら](https://www.city.kunitachi.tokyo.jp/soshiki/Dept05/Div01/Sec01/gyomu/shisetsu/0502/1463551230361.html)
+
+**住所**
+東京都国立市北3-1-1 9号棟1階
+（国立市コミュニティバス「くにっこ」北ルート、北西中ルート「北市民プラザ」バス停すぐ）
+`.trim(),
+    googleMapEmbedURL: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.0912530491673!2d139.43016671051106!3d35.69937197246706!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6018e15895322525%3A0xc8770d975829e351!2z5Zu956uL5biC5b255omAIOOBj-OBq-OBn-OBoeWMl-W4guawkeODl-ODqeOCtg!5e0!3m2!1sja!2sjp!4v1770549114000!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+    order: 1,
+  },
+  {
+    name: '国立駅南口すぐの旧国立駅舎',
+    description: `
+旧国立駅舎は、JR国立駅南口すぐにある赤い三角屋根のランドマークで、誰でも気軽に立ち寄れる「憩いの場」や「待ち合わせ場所」として最適です。館内には懐かしい旧改札の展示や、木の温もりを感じるベンチがあり、まち案内所や展示室、ピアノも設置されています。
+[詳細はこちら](https://www.city.kunitachi.tokyo.jp/kyukunitachiekisha_specialsite/index.html)
+`.trim(),
+    googleMapEmbedURL: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.1072507928325!2d139.4440410105111!3d35.69897827246712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6018e5235175535d%3A0x5cf4c0c58590e7c5!2z5pen5Zu956uL6aeF6IiO!5e0!3m2!1sja!2sjp!4v1770549350614!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+    order: 2,
+  },
+];
+
+// 3. available_weekdaysコレクション
+const availableWeekdays = [
+  { id: 'sun', isAvailable: true, order: 0 },
+  { id: 'mon', isAvailable: false, order: 1 },
+  { id: 'tue', isAvailable: false, order: 2 },
+  { id: 'wed', isAvailable: false, order: 3 },
+  { id: 'thu', isAvailable: false, order: 4 },
+  { id: 'fri', isAvailable: false, order: 5 },
+  { id: 'sat', isAvailable: true, order: 6 },
+];
+
+// 4. available_timesコレクション
+const availableTimes = [
+  '10:00', '10:30', '11:00', '11:30',
+  '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:30', '17:00'
+].map(time => ({ time }));
+
+
+// 5. unavailable_datesコレクション
+const unavailableDates = [
+  '2028-12-30',
+  '2028-12-31',
+  '2027-01-01',
+  '2027-01-02',
+  '2027-01-03'
+].map(dateStr => ({ date: Timestamp.fromDate(new Date(dateStr)) }));
+
+
 /**
- * 設定をFirestoreに書き込むメイン関数
+ * データをFirestoreに書き込むメイン関数
  */
-const initializeSettings = async () => {
+const initializeFirestoreData = async () => {
   try {
     console.log('Firestoreに接続中...');
     const db = getAdminDb();
+    const batch = db.batch();
 
+    // 1. settings
     const settingsRef = db.collection('settings').doc('site_config');
-
-    console.log('サイト設定を書き込んでいます...');
-    await settingsRef.set({
+    batch.set(settingsRef, {
       ...siteConfig,
-      updatedAt: FieldValue.serverTimestamp(),
+      updatedAt: FIXED_TIMESTAMP,
     });
+    console.log('-> settings の初期データを準備しました。');
 
-    console.log('✅ 成功しました！');
-    console.log("Firestoreの 'settings' コレクションに 'site_config' ドキュメントを作成/更新しました。");
+    // 2. meeting_locations
+    const locationsCollectionRef = db.collection('meeting_locations');
+    meetingLocations.forEach((location) => {
+      const docRef = locationsCollectionRef.doc(); // 自動ID
+      batch.set(docRef, location);
+    });
+    console.log(`-> meeting_locations の初期データ (${meetingLocations.length}件) を準備しました。`);
+
+    // 3. available_weekdays
+    const weekdaysCollectionRef = db.collection('available_weekdays');
+    availableWeekdays.forEach((weekday) => {
+        const docRef = weekdaysCollectionRef.doc(weekday.id);
+        batch.set(docRef, { isAvailable: weekday.isAvailable, order: weekday.order });
+    });
+    console.log(`-> available_weekdays の初期データ (${availableWeekdays.length}件) を準備しました。`);
+
+    // 4. available_times
+    const timesCollectionRef = db.collection('available_times');
+    availableTimes.forEach((time) => {
+        const docRef = timesCollectionRef.doc(); // 自動ID
+        batch.set(docRef, time);
+    });
+    console.log(`-> available_times の初期データ (${availableTimes.length}件) を準備しました。`);
+
+    // 5. unavailable_dates
+    const unavailableDatesCollectionRef = db.collection('unavailable_dates');
+    unavailableDates.forEach((date) => {
+        const docRef = unavailableDatesCollectionRef.doc(); // 自動ID
+        batch.set(docRef, date);
+    });
+    console.log(`-> unavailable_dates の初期データ (${unavailableDates.length}件) を準備しました。`);
+
+
+    console.log('\nFirestoreへの書き込みを実行中...');
+    await batch.commit();
+
+    console.log('\n✅ 成功しました！');
+    console.log("Firestoreの各コレクションに初期データを投入しました。");
 
   } catch (error: any) {
     console.error('エラーが発生しました:', error.message);
@@ -330,4 +361,4 @@ const initializeSettings = async () => {
   }
 };
 
-initializeSettings();
+initializeFirestoreData();

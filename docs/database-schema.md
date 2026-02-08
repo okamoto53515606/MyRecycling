@@ -29,7 +29,7 @@
 | フィールド名 | データ型 | 説明 |
 | :--- | :--- | :--- |
 | `siteName` | `string` | サイト名 |
-| `siteDescription` | `string` | サイトの概要説明（トップページ表示用） |
+| `siteDescription` | `string` | サイトの概要説明（トップページ表示用 / Markdown） |
 | `guideContent` | `string` | ご利用ガイドページの内容 (Markdown) |
 | `metaTitle` | `string` | トップページの `<title>` タグ |
 | `metaDescription` | `string` | トップページの `<meta name="description">` |
@@ -54,7 +54,7 @@
 | フィールド名 | データ型 | 説明 |
 | :--- | :--- | :--- |
 | `name` | `string` | 待ち合わせ場所の名称 |
-| `description` | `string` | 場所に関する補足説明 |
+| `description` | `string` | 場所に関する補足説明 (Markdown) |
 | `photoURL` | `string` | 場所の写真URL |
 | `googleMapEmbedURL`| `string` | Google Mapの埋め込み用HTMLタグ |
 | `order` | `number` | 表示順を制御するための数値 |
@@ -157,7 +157,7 @@
 | `commentFromBuyer` | `string` | (任意) 購入者からのコメント |
 | `meetingLocationId`| `string` | 受け渡し場所のドキュメントID |
 | `meetingLocationName`| `string` | (冗長化) 受け渡し場所の名称 |
-| `meetingLocationDescription`| `string` | (冗長化) 受け渡し場所の補足説明 |
+| `meetingLocationDescription`| `string` | (冗長化) 受け渡し場所の補足説明 (Markdown) |
 | `meetingLocationGoogleMapEmbedURL`| `string` | (冗長化) Google Mapの埋め込み用HTMLタグ |
 | `meetingDatetime` | `timestamp`| 受け渡し希望日時 |
 | `orderStatus` | `string` | 注文ステータス<br>authorized: 注文受付済<br>approved: 注文承認済<br>canceled: 注文キャンセル済<br>delivered: 商品受け渡し済<br>refund_requested: 返品依頼中<br>refunded: 商品返品済 |
@@ -172,7 +172,7 @@
 | `refundMeetingDatetime` | `timestamp`| (任意) 返品時の受け渡し希望日時 |
 | `refundMeetingLocationId`| `string` | (任意) 返品時の受け渡し場所ID |
 | `refundMeetingLocationName`| `string` | (任意/冗長化) 返品時の受け渡し場所名 |
-| `refundMeetingLocationDescription`| `string` | (任意/冗長化) 返品時の場所補足説明 |
+| `refundMeetingLocationDescription`| `string` | (任意/冗長化) 返品時の場所補足説明 (Markdown) |
 | `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogle Mapの埋め込み用HTMLタグ |
 | `returnedAt` | `timestamp`| (任意) 商品返品日時（返金日時） |
 
