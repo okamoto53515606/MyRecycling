@@ -282,6 +282,15 @@ body.admin-body {
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
+
+/* New Style for small hint text */
+.admin-form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--admin-text-secondary);
+}
+
 .admin-form-input, textarea.admin-form-input {
   width: 100%;
   padding: 0.6rem 0.8rem;
@@ -343,6 +352,19 @@ body.admin-body {
   color: #0f5132;
   background-color: #d1e7dd;
   border-color: #badbcc;
+}
+
+/* New Style for section titles */
+.admin-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+.admin-section-title:first-of-type {
+  margin-top: 0;
 }
 
 .loading-spin {

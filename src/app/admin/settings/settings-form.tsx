@@ -71,18 +71,6 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         <small>サイトのヘッダーなどに表示されます。</small>
       </div>
 
-      <div className="admin-form-group">
-        <label htmlFor="siteDescription">サイトの概要説明 (Markdown)</label>
-        <textarea id="siteDescription" name="siteDescription" className="admin-form-input" rows={5} defaultValue={settings.siteDescription}></textarea>
-        <small>トップページなどに表示される、サイト全体の紹介文です。</small>
-      </div>
-
-      <div className="admin-form-group">
-        <label htmlFor="guideContent">ご利用ガイド (Markdown)</label>
-        <textarea id="guideContent" name="guideContent" className="admin-form-input" rows={15} defaultValue={settings.guideContent}></textarea>
-        <small>「ご利用ガイド」ページに表示される内容です。</small>
-      </div>
-      
       {/* --- SEO設定 --- */}
       <h2 className="admin-section-title">SEO設定</h2>
       <div className="admin-form-group">
@@ -95,8 +83,20 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         <textarea id="metaDescription" name="metaDescription" className="admin-form-input" rows={3} defaultValue={settings.metaDescription}></textarea>
       </div>
       
-      {/* --- 法務ページ設定 --- */}
+      {/* --- ページコンテンツ設定 --- */}
       <h2 className="admin-section-title">ページコンテンツ設定</h2>
+      <div className="admin-form-group">
+        <label htmlFor="siteDescription">サイトの概要説明 (Markdown)</label>
+        <textarea id="siteDescription" name="siteDescription" className="admin-form-input" rows={15} defaultValue={settings.siteDescription}></textarea>
+        <small>トップページなどに表示される、サイト全体の紹介文です。</small>
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="guideContent">ご利用ガイド (Markdown)</label>
+        <textarea id="guideContent" name="guideContent" className="admin-form-input" rows={15} defaultValue={settings.guideContent}></textarea>
+        <small>「ご利用ガイド」ページに表示される内容です。</small>
+      </div>
+
       <div className="admin-form-group">
         <label htmlFor="legalCommerceContent">特定商取引法に基づく表記</label>
         <textarea id="legalCommerceContent" name="legalCommerceContent" className="admin-form-input" rows={15} defaultValue={settings.legalCommerceContent}></textarea>
@@ -112,7 +112,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         <textarea id="termsOfServiceContent" name="termsOfServiceContent" className="admin-form-input" rows={15} defaultValue={settings.termsOfServiceContent}></textarea>
       </div>
 
-      {/* --- フッターと外部連携 --- */}
+      {/* --- その他 --- */}
       <h2 className="admin-section-title">その他</h2>
       <div className="admin-form-group">
         <label htmlFor="copyright">フッターのコピーライト</label>
