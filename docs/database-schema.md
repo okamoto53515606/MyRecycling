@@ -155,7 +155,7 @@
 | `buyerEmail` | `string` | (冗長化) 購入者のメールアドレス |
 | `buyerDisplayName`| `string` | (冗長化) 購入者の表示名 |
 | `commentFromBuyer` | `string` | (任意) 購入者からのコメント |
-| `meetingLocationId`| `string` | 受け渡し場所のドキュメントID |
+| `meetingLocationPhotoURL`| `string` | (冗長化) 受け渡し場所の写真URL |
 | `meetingLocationName`| `string` | (冗長化) 受け渡し場所の名称 |
 | `meetingLocationDescription`| `string` | (冗長化) 受け渡し場所の補足説明 (Markdown) |
 | `meetingLocationGoogleMapEmbedURL`| `string` | (冗長化) Google Mapの埋め込み用HTMLタグ |
@@ -170,7 +170,7 @@
 | `handedOverAt` | `timestamp`| (任意) 商品受け渡し日時（売上確定日時） |
 | `refundRequestReason`| `string` | (任意) 返品理由 |
 | `refundMeetingDatetime` | `timestamp`| (任意) 返品時の受け渡し希望日時 |
-| `refundMeetingLocationId`| `string` | (任意) 返品時の受け渡し場所ID |
+| `refundMeetingLocationPhotoURL`| `string` | (任意/冗長化) 返品時の受け渡し場所の写真URL |
 | `refundMeetingLocationName`| `string` | (任意/冗長化) 返品時の受け渡し場所名 |
 | `refundMeetingLocationDescription`| `string` | (任意/冗長化) 返品時の場所補足説明 (Markdown) |
 | `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogle Mapの埋め込み用HTMLタグ |
