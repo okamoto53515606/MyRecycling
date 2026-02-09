@@ -137,7 +137,7 @@
 
 ---
 
-## 6. orders コレクション (新規)
+## 6. orders コレクション
 
 商品の注文情報を格納します。1ドキュメントが1回の取引（注文から受け渡し、返品まで）に対応します。
 
@@ -164,7 +164,7 @@
 | `stripePaymentIntentId` | `string` | StripeのPaymentIntent ID |
 | `ipAddress` | `string` | 注文時のIPアドレス |
 | `orderedAt` | `timestamp`| 注文受付日時（オーソリ実行日時） |
-| `approvedAt` | `timestamp`| (任意) 注文承認日時 |
+| `approvedAt` | `timestamp`| (任意) 注文確定日時 |
 | `cancellationReason`| `string` | (任意) 注文キャンセル理由 |
 | `canceledAt` | `timestamp`| (任意) 注文キャンセル日時 |
 | `handedOverAt` | `timestamp`| (任意) 商品受け渡し日時（売上確定日時） |
@@ -176,7 +176,7 @@
 | `refundMeetingLocationGoogleMapEmbedURL`| `string` | (任意/冗長化) 返品時のGoogle Mapの埋め込み用HTMLタグ |
 | `returnedAt` | `timestamp`| (任意) 商品返品日時（返金日時） |
 
-**個数は1の前提** ある商品ID（`productId`）に対し、`orderStatus` が `canceled`, `refunded` 以外の注文が存在する場合、その商品は「Sold out」扱いとして、他の人が注文できないようにアプリケーション側で制御する必要があります。
+**個数は固定値1の前提** ある商品ID（`productId`）に対し、`orderStatus` が `canceled`, `refunded` 以外の注文が存在する場合、その商品は「Sold out」扱いとして、他の人が注文できないようにアプリケーション側で制御する必要があります。
 
 ---
 
