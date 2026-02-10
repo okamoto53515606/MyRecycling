@@ -1012,3 +1012,201 @@ img {
   font-size: 0.8rem;
   color: #666;
 }
+
+/* ========================================
+   画像スライダー
+   ======================================== */
+   .image-slider__container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+  }
+  
+  .image-slider__placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: #999;
+  }
+  
+  .image-slider__image-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .image-slider__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+  }
+  
+  .image-slider__arrow:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .image-slider__arrow--left {
+    left: 16px;
+  }
+  
+  .image-slider__arrow--right {
+    right: 16px;
+  }
+  
+  .image-slider__dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  
+  .image-slider__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .image-slider__dot.active {
+    background-color: white;
+  }
+  
+  /* ========================================
+     商品詳細ページ
+     ======================================== */
+  .product-detail__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  @media (min-width: 768px) {
+    .product-detail__layout {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+  }
+  
+  .product-detail__image-section {
+    position: sticky;
+    top: 24px;
+  }
+  
+  .product-detail__info-section {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-detail__title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  
+  .product-detail__price {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 24px;
+  }
+  
+  .product-detail__meta {
+    font-size: 0.9rem;
+    color: #333;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .product-detail__actions {
+    margin-top: auto; /* ボタンを一番下に配置 */
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    text-align: center;
+  }
+  
+  .product-detail__sold-out-text {
+    display: inline-block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc3545;
+    background-color: #f8f9fa;
+    padding: 12px 24px;
+    border-radius: 8px;
+    width: 100%;
+  }
+  
+  .product-detail__login-prompt {
+    margin-bottom: 16px;
+  }
+  
+  .product-detail__reference {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  .product-detail__reference a {
+    text-decoration: underline;
+  }
+  
+  .product-detail__content-section {
+    max-width: 800px;
+    margin: 48px auto 0 auto;
+    padding-top: 32px;
+    border-top: 1px solid #eee;
+  }
+  
+  .product-detail__content-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 24px;
+  }
+  
+  .product-detail__content-body {
+    line-height: 1.8;
+    font-size: 0.95rem;
+    /* 'dangerouslySetInnerHTML'で出力されるHTMLタグのスタイル */
+  }
+  
+  /* レスポンシブ対応 */
+  @media (max-width: 767px) {
+    .product-detail__title {
+      font-size: 1.5rem;
+    }
+    .product-detail__price {
+      font-size: 1.8rem;
+    }
+    .product-detail__image-section {
+      position: static;
+    }
+    .product-detail__content-section {
+      margin-top: 32px;
+    }
+  }
+  

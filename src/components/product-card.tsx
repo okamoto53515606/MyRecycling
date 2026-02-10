@@ -2,23 +2,13 @@
  * 商品カードコンポーネント
  * 
  * 商品一覧ページで使用されるカード形式の商品プレビューです。
- * - 画像, タイトル, 概要, 価格, 最終更新日, Sold out表示
+ * - 画像, タイトル, 概要, 価格, Sold out表示
  */
 
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
 import { formatPrice } from '@/lib/utils';
-
-function formatTimestamp(date: Date): string {
-  if (!date) return '日付不明';
-  return new Intl.DateTimeFormat('ja-JP', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(date);
-}
 
 export default function ProductCard({ product, priority = false }: { product: Product, priority?: boolean }) {
   const cardContent = (
@@ -36,16 +26,14 @@ export default function ProductCard({ product, priority = false }: { product: Pr
           priority={priority}
         />
       </div>
-      <div className="product-card__content">
+      {/* flex-grow: 1 をインラインで指定し、価格の縦位置を揃える */}
+      <div className="product-card__content" style={{ flexGrow: 1 }}>
         <h2>{product.title}</h2>
         <p>{product.excerpt}</p>
       </div>
       <div className="product-card__footer">
         <span className="product-card__price">
           {formatPrice(product.price)}
-        </span>
-        <span className="product-card__date">
-          {formatTimestamp(product.updatedAt)}
         </span>
       </div>
     </>
@@ -54,7 +42,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
   return product.isSoldOut ? (
     <div className="product-card sold-out">{cardContent}</div>
   ) : (
-    <Link href={`/products/${product.id}`} className="product-card" style={{ display: 'block' }}>
+    <Link href={`/products/${product.id}`} className="product-card">
       {cardContent}
     </Link>
   );

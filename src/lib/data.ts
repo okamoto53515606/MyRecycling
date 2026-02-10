@@ -93,7 +93,30 @@ export async function getSettings(): Promise<Settings> {
   } as Settings;
 }
 
-// --- Public Product Data ---
+// --- Public Product Data (利用者サイト向け) ---
+
+export async function getPublishedProduct(id: string): Promise<Product | null> {
+  try {
+    const db = getAdminDb();
+    const docSnap = await db.collection('products').doc(id).get();
+
+    if (!docSnap.exists) {
+      logger.warn(`[data.ts] getPublishedProduct: Product with id ${id} not found.`);
+      return null;
+    }
+    
+    const data = docSnap.data();
+    if (data?.status !== 'published') {
+      logger.warn(`[data.ts] getPublishedProduct: Product with id ${id} is not published (status: ${data?.status}).`);
+      return null;
+    }
+
+    return await docToProduct(docSnap);
+  } catch (error) {
+    logger.error(`[data.ts] getPublishedProduct: Failed to get product with id ${id}:`, error);
+    return null;
+  }
+}
 
 export async function getProducts({
   page = 1,
@@ -136,7 +159,7 @@ export async function getProducts({
   }
 }
 
-// --- Admin Product Data ---
+// --- Admin Product Data (管理画面向け) ---
 
 const ADMIN_PAGE_LIMIT = 15;
 
