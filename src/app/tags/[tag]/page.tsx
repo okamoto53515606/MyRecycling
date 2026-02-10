@@ -5,9 +5,8 @@
  * ページネーションに対応しています。
  */
 
-import { getProducts } from '@/lib/data';
-import type { Product } from '@/lib/types'; // dataからtypesに変更
-import { getSiteSettings } from '@/lib/settings';
+import { getProducts, getSettings } from '@/lib/data';
+import type { Product } from '@/lib/types';
 import ProductCard from '@/components/product-card';
 import Pagination from '@/components/pagination';
 import type { Metadata } from 'next';
@@ -28,7 +27,7 @@ export async function generateMetadata({ params, searchParams }: TagPageProps): 
   const resolvedSearchParams = await searchParams;
   const tag = decodeURIComponent(rawTag);
   const page = Number(resolvedSearchParams?.p || 1);
-  const settings = await getSiteSettings();
+  const settings = await getSettings();
   const siteName = settings?.siteName || '';
   
   const title = page > 1

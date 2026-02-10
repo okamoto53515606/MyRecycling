@@ -15,6 +15,7 @@ export interface Product {
   authorId: string;
   createdAt: Date;
   updatedAt: Date;
+  isSoldOut: boolean;
 }
 
 // 受け渡し場所データ

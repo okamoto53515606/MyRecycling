@@ -9,6 +9,7 @@ import { getAdminDb } from './firebase-admin';
 import { logger } from './env';
 import type { Timestamp, DocumentData, DocumentSnapshot, Query } from 'firebase-admin/firestore';
 import type { Product, MeetingLocation, AvailableWeekday, AvailableTime, UnavailableDate } from './types';
+import { Settings } from './settings';
 
 // --- 型定義 (サマリー) ---
 
@@ -40,10 +41,25 @@ const convertTimestamp = (timestamp: Timestamp | Date): Date => {
   return timestamp.toDate();
 };
 
+// isSoldOut 判定
+export async function isSoldOut(productId: string): Promise<boolean> {
+  const db = getAdminDb();
+  const ordersRef = db.collection('orders');
+  const snapshot = await ordersRef
+    .where('productId', '==', productId)
+    .where('orderStatus', 'not-in', ['canceled', 'refunded'])
+    .get();
+
+  return !snapshot.empty;
+}
+
 // Firestore のドキュメントから Product 型へ変換
-const docToProduct = (doc: DocumentSnapshot<DocumentData>): Product => {
+const docToProduct = async (doc: DocumentSnapshot<DocumentData>): Promise<Product> => {
   const data = doc.data();
   if (!data) throw new Error('Document data not found');
+  
+  const soldOut = await isSoldOut(doc.id);
+
   return {
     id: doc.id,
     title: data.title,
@@ -58,8 +74,24 @@ const docToProduct = (doc: DocumentSnapshot<DocumentData>): Product => {
     authorId: data.authorId,
     createdAt: convertTimestamp(data.createdAt),
     updatedAt: convertTimestamp(data.updatedAt),
+    isSoldOut: soldOut,
   };
 };
+
+// --- Settings Data ---
+export async function getSettings(): Promise<Settings> {
+  const db = getAdminDb();
+  const docRef = db.collection('settings').doc('site_config');
+  const docSnap = await docRef.get();
+  if (!docSnap.exists) {
+    throw new Error("Settings not found");
+  }
+  const data = docSnap.data() as DocumentData;
+  return {
+    ...data,
+    siteDescription: data.siteDescription,
+  } as Settings;
+}
 
 // --- Public Product Data ---
 
@@ -95,7 +127,7 @@ export async function getProducts({
       return { products: [], total: 0 };
     }
 
-    const products = snapshot.docs.map(doc => docToProduct(doc));
+    const products = await Promise.all(snapshot.docs.map(doc => docToProduct(doc)));
 
     return { products, total };
   } catch (error) {
@@ -147,7 +179,7 @@ export async function getProduct(id: string): Promise<Product | null> {
     const db = getAdminDb();
     const docSnap = await db.collection('products').doc(id).get();
     if (!docSnap.exists) return null;
-    return docToProduct(docSnap);
+    return await docToProduct(docSnap);
   } catch (error) {
     logger.error(`商品(${id})の取得に失敗:', error`);
     return null;

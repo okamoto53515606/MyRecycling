@@ -5,12 +5,13 @@
  * 全ての商品をカード形式で表示します（30件ごとのページネーション対応）。
  */
 
-import { getProducts } from '@/lib/data';
-import type { Product } from '@/lib/types'; // dataからtypesに変更
-import { getSiteSettings } from '@/lib/settings';
+import { getProducts, getSettings } from '@/lib/data';
+import type { Product } from '@/lib/types';
 import ProductCard from '@/components/product-card';
 import Pagination from '@/components/pagination';
 import type { Metadata } from 'next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const PRODUCTS_PER_PAGE = 30;
 
@@ -22,7 +23,7 @@ export async function generateMetadata({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const settings = await getSettings();
   const params = await searchParams;
   const page = Number(params?.p || 1);
   const siteName = settings?.siteName || '';
@@ -50,7 +51,7 @@ export default async function Home({
 
   const [{ products, total }, settings] = await Promise.all([
     getProducts({ page, limit: PRODUCTS_PER_PAGE }),
-    getSiteSettings(),
+    getSettings(),
   ]);
 
   const siteName = settings?.siteName || '商品一覧';
@@ -59,6 +60,13 @@ export default async function Home({
   return (
     <div className="page-section container">
       <h1>{siteName}</h1>
+      {settings.siteDescription && 
+        <div className="site-description">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {settings.siteDescription}
+          </ReactMarkdown>
+        </div>
+      }
 
       {products.length > 0 ? (
         <>
