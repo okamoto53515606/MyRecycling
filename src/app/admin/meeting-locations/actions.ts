@@ -7,7 +7,7 @@ import { getAdminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { getUser } from '@/lib/auth';
+import { checkAdminAccess } from '@/lib/admin-auth';
 import { logger } from '@/lib/env';
 
 // バリデーションスキーマ (共通)
@@ -31,9 +31,9 @@ export async function createMeetingLocationAction(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const user = await getUser();
-  if (user.role !== 'admin') {
-    return { status: 'error', message: '管理者権限がありません。' };
+  const access = await checkAdminAccess();
+  if (!access.isAllowed) {
+    return { status: 'error', message: access.error || '管理者権限がありません。' };
   }
 
   const validatedFields = FormSchema.safeParse({
@@ -74,9 +74,9 @@ export async function updateMeetingLocationAction(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const user = await getUser();
-  if (user.role !== 'admin') {
-    return { status: 'error', message: '管理者権限がありません。' };
+  const access = await checkAdminAccess();
+  if (!access.isAllowed) {
+    return { status: 'error', message: access.error || '管理者権限がありません。' };
   }
 
   const validatedFields = FormSchema.safeParse({
@@ -109,9 +109,9 @@ export async function updateMeetingLocationAction(
 
 // --- 削除アクション ---
 export async function deleteMeetingLocationAction(id: string) {
-  const user = await getUser();
-  if (user.role !== 'admin') {
-    throw new Error('管理者権限が必要です');
+  const access = await checkAdminAccess();
+  if (!access.isAllowed) {
+    throw new Error(access.error || '管理者権限が必要です');
   }
 
   try {

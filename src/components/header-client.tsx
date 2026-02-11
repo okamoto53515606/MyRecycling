@@ -51,7 +51,7 @@ export function UserProfileClient({ user, siteName, termsOfServiceContent }: Use
     return (
       <>
         <button onClick={() => setIsLoginModalOpen(true)} className="btn">
-          <span>Googleでログイン</span>
+          <span>ログイン</span>
         </button>
         <LoginModal
           isOpen={isLoginModalOpen}

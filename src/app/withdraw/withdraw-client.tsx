@@ -83,8 +83,8 @@ export default function WithdrawClient({ userName }: WithdrawClientProps) {
             <div className="modal-warning">
               <p>この操作は取り消すことができません。</p>
               <ul>
-                <li>有料記事へのアクセス権は失われます</li>
-                <li>お支払い済みの料金は返金されません</li>
+                <li>アカウント情報は削除されます</li>
+                <li>注文履歴は会計・税務上の理由で保持されます</li>
                 <li>アカウントの復元はできません</li>
               </ul>
             </div>

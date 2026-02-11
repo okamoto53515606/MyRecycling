@@ -8,13 +8,14 @@ import ProductImageSlider from '@/components/product-image-slider';
 import ProductOrderActions from '@/components/product-order-actions';
 
 interface ProductPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // メタデータの生成
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { id } = await params;
   const [product, settings] = await Promise.all([
-    getPublishedProduct(params.id),
+    getPublishedProduct(id),
     getSiteSettings(),
   ]);
   const siteName = settings?.siteName || '';
@@ -52,9 +53,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 // ページ本体
 export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = await params;
   // Promise.allでユーザー情報も同時に取得する
   const [product, settings, user] = await Promise.all([
-    getPublishedProduct(params.id),
+    getPublishedProduct(id),
     getSiteSettings(),
     getUser(), // ← getUser() を使用
   ]);

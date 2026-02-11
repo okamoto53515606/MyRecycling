@@ -6,7 +6,7 @@
 import { getAdminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { getUser } from '@/lib/auth';
+import { checkAdminAccess } from '@/lib/admin-auth';
 import { logger } from '@/lib/env';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -27,9 +27,9 @@ export async function updateDeliverySettingsAction(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const user = await getUser();
-  if (user.role !== 'admin') {
-    return { status: 'error', message: '管理者権限がありません。' };
+  const access = await checkAdminAccess();
+  if (!access.isAllowed) {
+    return { status: 'error', message: access.error || '管理者権限がありません。' };
   }
 
   const validatedFields = FormSchema.safeParse({

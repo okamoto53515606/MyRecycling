@@ -14,7 +14,8 @@ import {
   MapPin,
   ChevronLeft,
   ChevronRight,
-  CalendarClock, // アイコンをインポート
+  CalendarClock,
+  ClipboardList, // 注文管理用アイコン
 } from 'lucide-react';
 
 const STORAGE_KEY = 'admin-sidebar-collapsed';
@@ -22,9 +23,10 @@ const STORAGE_KEY = 'admin-sidebar-collapsed';
 // ナビゲーション項目を更新
 const navItems = [
   { href: '/admin', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/admin/orders', label: '注文管理', icon: ClipboardList },
   { href: '/admin/products', label: '商品管理', icon: ShoppingCart },
   { href: '/admin/meeting-locations', label: '受け渡し場所', icon: MapPin },
-  { href: '/admin/delivery-settings', label: '受け渡し日時設定', icon: CalendarClock }, // 新規追加
+  { href: '/admin/delivery-settings', label: '受け渡し日時設定', icon: CalendarClock },
   { href: '/admin/settings', label: 'サイト設定', icon: Settings },
 ];
 

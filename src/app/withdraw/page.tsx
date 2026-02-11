@@ -37,16 +37,12 @@ export default async function WithdrawPage() {
         
         <ul>
           <li>
-            <strong>有料記事について：</strong>
-            購入済みであっても、退会後は有料記事を閲覧できなくなります。
+            <strong>削除されるデータ：</strong>
+            アカウント情報（メールアドレス、表示名、プロフィール画像URL）は削除されます。
           </li>
           <li>
-            <strong>返金について：</strong>
-            退会しても、お支払い済みの料金の返金はできません。
-          </li>
-          <li>
-            <strong>コメントについて：</strong>
-            投稿したコメントはサイト上に残ります。
+            <strong>保持されるデータ：</strong>
+            注文履歴は、会計・税務上の理由により法定期間保持されます。
           </li>
           <li>
             <strong>復元について：</strong>

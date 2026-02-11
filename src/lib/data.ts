@@ -456,3 +456,49 @@ export async function getOrderForUser(orderId: string, uid: string): Promise<Ord
     return null;
   }
 }
+
+// --- 管理者用注文データ取得 ---
+
+// 全注文一覧を取得（管理者用）
+export async function getAllOrders(options?: {
+  status?: string;
+  limit?: number;
+}): Promise<Order[]> {
+  try {
+    const db = getAdminDb();
+    let query: Query = db.collection('orders').orderBy('orderedAt', 'desc');
+
+    if (options?.status) {
+      query = query.where('orderStatus', '==', options.status);
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const snapshot = await query.get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => docToOrder(doc as DocumentSnapshot<DocumentData>));
+  } catch (error) {
+    logger.error('[data.ts] getAllOrders failed:', error);
+    return [];
+  }
+}
+
+// 注文詳細を取得（管理者用、権限チェックなし）
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  try {
+    const db = getAdminDb();
+    const docSnap = await db.collection('orders').doc(orderId).get();
+
+    if (!docSnap.exists) {
+      logger.warn(`[data.ts] getOrderById: Order ${orderId} not found`);
+      return null;
+    }
+
+    return docToOrder(docSnap);
+  } catch (error) {
+    logger.error(`[data.ts] getOrderById failed:`, error);
+    return null;
+  }
+}

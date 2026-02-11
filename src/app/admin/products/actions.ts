@@ -8,16 +8,16 @@
 
 import { getAdminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import { getUser } from '@/lib/auth';
+import { checkAdminAccess } from '@/lib/admin-auth';
 
 /**
  * 商品を削除するサーバーアクション
  * @param formData - フォームデータ（productIdを含む）
  */
 export async function handleDeleteProduct(formData: FormData) {
-  const user = await getUser();
-  if (user.role !== 'admin') {
-    throw new Error('管理者権限がありません。');
+  const access = await checkAdminAccess();
+  if (!access.isAllowed) {
+    throw new Error(access.error || '管理者権限がありません。');
   }
 
   const productId = formData.get('productId') as string;
