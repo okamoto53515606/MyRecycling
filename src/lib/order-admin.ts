@@ -104,12 +104,6 @@ export async function createProductOrder(params: CreateOrderParams): Promise<str
 
     transaction.set(orderRef, orderData);
 
-    // 商品を売り切れにする
-    transaction.update(productRef, {
-      isSoldOut: true,
-      updatedAt: FieldValue.serverTimestamp(),
-    });
-
     logger.info(`Order ${orderId} created and product ${params.productId} marked as sold out`);
     return { orderId, created: true };
   });
