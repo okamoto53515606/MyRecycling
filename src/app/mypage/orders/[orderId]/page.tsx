@@ -6,7 +6,7 @@
  */
 import { notFound } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { getSettings, getOrderForUser } from '@/lib/data';
+import { getSettings, getOrderForUser, getMeetingLocationsWithDetails, getAvailableWeekdays, getAvailableTimes, getUnavailableDates } from '@/lib/data';
 import { LoginRequired } from '../../login-required';
 import { OrderDetailClient } from './order-detail-client';
 import { marked, Renderer } from 'marked';
@@ -90,6 +90,34 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     order.orderStatus
   );
 
+  // 返品依頼可能な場合（delivered）は受け渡し場所・日時データを取得
+  let refundScheduleData = null;
+  if (order.orderStatus === 'delivered') {
+    const [meetingLocations, availableWeekdays, availableTimes, unavailableDates] = await Promise.all([
+      getMeetingLocationsWithDetails(),
+      getAvailableWeekdays(),
+      getAvailableTimes(),
+      getUnavailableDates(),
+    ]);
+
+    // Markdown → HTML変換（各場所の説明）
+    const locationsWithHtml = await Promise.all(
+      meetingLocations.map(async (location) => ({
+        ...location,
+        descriptionHtml: location.description
+          ? await marked(location.description, { renderer })
+          : '',
+      }))
+    );
+
+    refundScheduleData = {
+      meetingLocations: locationsWithHtml,
+      availableWeekdays,
+      availableTimes,
+      unavailableDates: unavailableDates.map(d => d.date.toISOString()),
+    };
+  }
+
   return (
     <OrderDetailClient 
       order={{
@@ -105,6 +133,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       meetingLocationDescriptionHtml={meetingLocationDescriptionHtml}
       receiptUrl={receiptUrl}
       refundReceiptUrl={refundReceiptUrl}
+      refundScheduleData={refundScheduleData}
     />
   );
 }

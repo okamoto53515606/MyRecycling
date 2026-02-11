@@ -1859,4 +1859,122 @@ img {
 .order-detail__receipt-link:hover {
   text-decoration: underline;
 }
+
+/* 返品依頼モーダル */
+.order-detail__refund-notice {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #e7f5ff;
+  border: 1px solid #74c0fc;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.order-detail__refund-notice svg {
+  flex-shrink: 0;
+  color: #1971c2;
+}
+
+.order-detail__refund-notice p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1864ab;
+  line-height: 1.5;
+}
+
+.order-detail__refund-section {
+  margin-bottom: 1.5rem;
+}
+
+.order-detail__refund-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.order-detail__refund-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.order-detail__refund-location-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.order-detail__refund-location-card:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.order-detail__refund-location-card.selected {
+  border-color: #007bff;
+  background: #e7f5ff;
+}
+
+.order-detail__radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.order-detail__refund-location-name {
+  font-weight: 500;
+}
+
+.order-detail__detail-link {
+  font-size: 0.85rem;
+  color: #007bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.order-detail__detail-link:hover {
+  text-decoration: underline;
+}
+
+.order-detail__refund-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.order-detail__refund-date-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.order-detail__refund-date-btn:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.order-detail__refund-date-btn.selected {
+  border-color: #007bff;
+  background: #007bff;
+  color: white;
+}
+
+.order-detail__no-dates {
+  color: #6c757d;
+  font-style: italic;
+}
   

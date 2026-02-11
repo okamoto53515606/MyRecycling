@@ -80,7 +80,14 @@ export async function cancelOrder(orderId: string, reason: string): Promise<{ su
  */
 export async function requestRefund(
   orderId: string, 
-  reason: string
+  data: {
+    reason: string;
+    meetingDatetime: string;
+    meetingLocationName: string;
+    meetingLocationPhotoURL: string;
+    meetingLocationDescription: string;
+    meetingLocationGoogleMapEmbedURL: string;
+  }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const user = await getUser();
@@ -108,14 +115,23 @@ export async function requestRefund(
       return { success: false, error: 'この注文は返品依頼できません' };
     }
 
-    if (!reason.trim()) {
+    if (!data.reason.trim()) {
       return { success: false, error: '返品理由を入力してください' };
+    }
+
+    if (!data.meetingLocationName || !data.meetingDatetime) {
+      return { success: false, error: '返品受け渡し場所と日時を選択してください' };
     }
 
     // 注文ステータスを更新
     await orderRef.update({
       orderStatus: 'refund_requested',
-      refundRequestReason: reason,
+      refundRequestReason: data.reason,
+      refundMeetingDatetime: new Date(data.meetingDatetime),
+      refundMeetingLocationName: data.meetingLocationName,
+      refundMeetingLocationPhotoURL: data.meetingLocationPhotoURL,
+      refundMeetingLocationDescription: data.meetingLocationDescription,
+      refundMeetingLocationGoogleMapEmbedURL: data.meetingLocationGoogleMapEmbedURL,
     });
 
     logger.info(`Order ${orderId} refund requested by user ${user.uid}`);

@@ -5,12 +5,16 @@
  */
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, X, Loader } from 'lucide-react';
-import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/types';
+import { ArrowLeft, MapPin, X, Loader, Info } from 'lucide-react';
+import { ORDER_STATUS_LABELS, type OrderStatus, type MeetingLocation, type AvailableWeekday, type AvailableTime } from '@/lib/types';
 import { cancelOrder, requestRefund } from './actions';
+import MeetingLocationModal from '@/components/meeting-location-modal';
+
+// サーバーでMarkdownをHTMLに変換済みの受け渡し場所
+type MeetingLocationWithHtml = MeetingLocation & { descriptionHtml: string };
 
 // サーバーから渡される注文データ（日付はISO文字列）
 interface OrderData {
@@ -50,6 +54,12 @@ interface OrderDetailClientProps {
   meetingLocationDescriptionHtml: string;
   receiptUrl?: string;
   refundReceiptUrl?: string;
+  refundScheduleData?: {
+    meetingLocations: MeetingLocationWithHtml[];
+    availableWeekdays: AvailableWeekday[];
+    availableTimes: AvailableTime[];
+    unavailableDates: string[];
+  } | null;
 }
 
 function formatDate(isoString: string): string {
@@ -108,7 +118,29 @@ function getStatusNotice(status: OrderStatus): string | null {
   }
 }
 
-export function OrderDetailClient({ order, meetingLocationDescriptionHtml, receiptUrl, refundReceiptUrl }: OrderDetailClientProps) {
+// 曜日のインデックスからIDを取得するマップ
+const WEEKDAY_INDEX_TO_ID: { [key: number]: string } = {
+  0: 'sun',
+  1: 'mon',
+  2: 'tue',
+  3: 'wed',
+  4: 'thu',
+  5: 'fri',
+  6: 'sat',
+};
+
+// 曜日の日本語表記
+const WEEKDAY_NAMES: { [key: string]: string } = {
+  sun: '日',
+  mon: '月',
+  tue: '火',
+  wed: '水',
+  thu: '木',
+  fri: '金',
+  sat: '土',
+};
+
+export function OrderDetailClient({ order, meetingLocationDescriptionHtml, receiptUrl, refundReceiptUrl, refundScheduleData }: OrderDetailClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -118,8 +150,57 @@ export function OrderDetailClient({ order, meetingLocationDescriptionHtml, recei
   const [refundReason, setRefundReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   
+  // 返品依頼用の状態
+  const [refundLocationId, setRefundLocationId] = useState<string>(refundScheduleData?.meetingLocations[0]?.id || '');
+  const [refundDate, setRefundDate] = useState<string>('');
+  const [refundTime, setRefundTime] = useState<string>('');
+  const [refundLocationModalId, setRefundLocationModalId] = useState<string | null>(null);
+  
   const buttonStates = getButtonStates(order.orderStatus);
   const statusNotice = getStatusNotice(order.orderStatus);
+
+  // 返品用の選択可能な日付を計算
+  const refundAvailableDates = useMemo(() => {
+    if (!refundScheduleData) return [];
+    
+    const dates: { date: Date; dateString: string; weekdayName: string }[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const availableWeekdayIds = new Set(
+      refundScheduleData.availableWeekdays.filter(w => w.isAvailable).map(w => w.id)
+    );
+
+    const unavailableDateSet = new Set(
+      refundScheduleData.unavailableDates.map(d => {
+        const date = new Date(d);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      })
+    );
+
+    for (let i = 1; i <= 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+
+      const weekdayId = WEEKDAY_INDEX_TO_ID[date.getDay()];
+      const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+      if (availableWeekdayIds.has(weekdayId) && !unavailableDateSet.has(dateString)) {
+        dates.push({
+          date,
+          dateString,
+          weekdayName: WEEKDAY_NAMES[weekdayId],
+        });
+      }
+    }
+
+    return dates;
+  }, [refundScheduleData]);
+
+  // 日付のフォーマット（M月D日）
+  const formatDateDisplay = (date: Date) => {
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  };
 
   const handleCancel = () => {
     setError(null);
@@ -140,8 +221,30 @@ export function OrderDetailClient({ order, meetingLocationDescriptionHtml, recei
       setError('返品理由を入力してください');
       return;
     }
+    if (!refundLocationId) {
+      setError('返品受け渡し場所を選択してください');
+      return;
+    }
+    if (!refundDate) {
+      setError('返品受け渡し日を選択してください');
+      return;
+    }
+    if (!refundTime) {
+      setError('返品受け渡し時刻を選択してください');
+      return;
+    }
+
+    const selectedLocation = refundScheduleData?.meetingLocations.find(l => l.id === refundLocationId);
+
     startTransition(async () => {
-      const result = await requestRefund(order.id, refundReason);
+      const result = await requestRefund(order.id, {
+        reason: refundReason,
+        meetingDatetime: `${refundDate}T${refundTime}:00`,
+        meetingLocationName: selectedLocation?.name || '',
+        meetingLocationPhotoURL: selectedLocation?.photoURL || '',
+        meetingLocationDescription: selectedLocation?.description || '',
+        meetingLocationGoogleMapEmbedURL: selectedLocation?.googleMapEmbedURL || '',
+      });
       if (result.success) {
         setIsRefundModalOpen(false);
         router.refresh();
@@ -466,9 +569,9 @@ export function OrderDetailClient({ order, meetingLocationDescriptionHtml, recei
       )}
 
       {/* 返品依頼モーダル */}
-      {isRefundModalOpen && (
+      {isRefundModalOpen && refundScheduleData && (
         <div className="modal-overlay" onClick={() => !isPending && setIsRefundModalOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal modal--large" onClick={(e) => e.stopPropagation()}>
             <div className="modal__header">
               <h2>返品を依頼</h2>
               <button
@@ -482,18 +585,107 @@ export function OrderDetailClient({ order, meetingLocationDescriptionHtml, recei
               </button>
             </div>
             <div className="modal__body">
-              <p>この注文の返品を依頼しますか？</p>
-              <label className="order-detail__modal-label">
-                返品理由（必須）
-                <textarea
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value)}
-                  placeholder="返品理由を入力してください"
-                  className="order-detail__modal-textarea"
-                  required
-                  disabled={isPending}
-                />
-              </label>
+              {/* 注意書き */}
+              <div className="order-detail__refund-notice">
+                <Info size={16} />
+                <p>
+                  <strong>ご注意：</strong>返品受け渡し日時はこの時点ではまだ確定ではありません。
+                  依頼後、運営者より日時調整のご連絡をいたします。
+                </p>
+              </div>
+
+              {/* 返品理由 */}
+              <div className="order-detail__refund-section">
+                <label className="order-detail__modal-label">
+                  返品理由（必須）
+                  <textarea
+                    value={refundReason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                    placeholder="返品理由を入力してください"
+                    className="order-detail__modal-textarea"
+                    required
+                    disabled={isPending}
+                  />
+                </label>
+              </div>
+
+              {/* 返品受け渡し場所選択 */}
+              <div className="order-detail__refund-section">
+                <h3>返品受け渡し場所を選択（必須）</h3>
+                <div className="order-detail__refund-locations">
+                  {refundScheduleData.meetingLocations.map(location => (
+                    <div
+                      key={location.id}
+                      className={`order-detail__refund-location-card ${refundLocationId === location.id ? 'selected' : ''}`}
+                      onClick={() => !isPending && setRefundLocationId(location.id)}
+                    >
+                      <label className="order-detail__radio-label">
+                        <input
+                          type="radio"
+                          name="refundMeetingLocation"
+                          value={location.id}
+                          checked={refundLocationId === location.id}
+                          onChange={(e) => setRefundLocationId(e.target.value)}
+                          disabled={isPending}
+                        />
+                        <span className="order-detail__refund-location-name">{location.name}</span>
+                      </label>
+                      <button
+                        type="button"
+                        className="order-detail__detail-link"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRefundLocationModalId(location.id);
+                        }}
+                        disabled={isPending}
+                      >
+                        （詳細）
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 返品受け渡し日選択 */}
+              <div className="order-detail__refund-section">
+                <h3>返品受け渡し日を選択（必須）</h3>
+                {refundAvailableDates.length === 0 ? (
+                  <p className="order-detail__no-dates">現在選択可能な日付がありません。</p>
+                ) : (
+                  <div className="order-detail__refund-dates">
+                    {refundAvailableDates.map(({ date, dateString, weekdayName }) => (
+                      <button
+                        key={dateString}
+                        type="button"
+                        className={`order-detail__refund-date-btn ${refundDate === dateString ? 'selected' : ''}`}
+                        onClick={() => setRefundDate(dateString)}
+                        disabled={isPending}
+                      >
+                        {formatDateDisplay(date)}（{weekdayName}）
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 返品受け渡し時刻選択 */}
+              <div className="order-detail__refund-section">
+                <h3>返品受け渡し時刻を選択（必須）</h3>
+                <select
+                  value={refundTime}
+                  onChange={(e) => setRefundTime(e.target.value)}
+                  className="form-group__select"
+                  disabled={!refundDate || isPending}
+                >
+                  <option value="">時刻を選択してください</option>
+                  {refundScheduleData.availableTimes.map(time => (
+                    <option key={time.id} value={time.time}>
+                      {time.time}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {error && <p className="order-detail__modal-error">{error}</p>}
             </div>
             <div className="modal__footer">
@@ -523,6 +715,14 @@ export function OrderDetailClient({ order, meetingLocationDescriptionHtml, recei
             </div>
           </div>
         </div>
+      )}
+
+      {/* 返品受け渡し場所詳細モーダル */}
+      {refundLocationModalId && refundScheduleData && (
+        <MeetingLocationModal
+          location={refundScheduleData.meetingLocations.find(l => l.id === refundLocationModalId)!}
+          onClose={() => setRefundLocationModalId(null)}
+        />
       )}
     </div>
   );
