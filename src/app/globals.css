@@ -103,7 +103,7 @@ img {
 }
 @media (max-width: 480px) {
   .header__site-name {
-    max-width: 120px;
+    max-width: 140px;
     font-size: 0.8rem;
   }
 }
