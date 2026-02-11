@@ -4,8 +4,7 @@
  * ユーザーの退会処理を行います。
  * 
  * 【処理内容】
- * 1. usersドキュメントを物理削除
- * 2. commentsのuserIdをnull化
+ * 2. usersドキュメントを物理削除
  * 3. paymentsはuser_idを保持（会計・税務上の理由）
  * 4. Firebase Authのユーザーを削除
  * 5. セッションクッキーを削除
@@ -56,23 +55,6 @@ export async function DELETE() {
     }
 
     logger.info(`[Withdraw] 退会処理開始: uid=${uid}`);
-
-    // 1. commentsのuserIdをnull化
-    const commentsSnapshot = await db.collection('comments')
-      .where('userId', '==', uid)
-      .get();
-
-    const batch = db.batch();
-    commentsSnapshot.forEach((doc) => {
-      batch.update(doc.ref, {
-        userId: null,
-      });
-    });
-
-    if (!commentsSnapshot.empty) {
-      await batch.commit();
-      logger.info(`[Withdraw] コメント更新: ${commentsSnapshot.size}件`);
-    }
 
     // 2. usersドキュメントを物理削除
     const userRef = db.collection('users').doc(uid);
