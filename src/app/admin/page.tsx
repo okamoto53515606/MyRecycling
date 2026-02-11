@@ -4,7 +4,7 @@
  * @description
  * 管理機能のトップページ。サイトの概要や主要な機能へのリンクを提供します。
  */
-import { Settings, ShoppingCart, MapPin, PlusSquare, CalendarClock, ClipboardList } from 'lucide-react';
+import { Settings, ShoppingCart, MapPin, PlusSquare, CalendarClock, ClipboardList, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
@@ -34,6 +34,9 @@ export default function AdminDashboardPage() {
           </Link>
           <Link href="/admin/delivery-settings" className="admin-btn">
             <CalendarClock size={16} /> 受け渡し日時設定
+          </Link>
+          <Link href="/admin/mail-templates" className="admin-btn">
+            <Mail size={16} /> メールテンプレート
           </Link>
           <Link href="/admin/products/new" className="admin-btn admin-btn--primary">
             <PlusSquare size={16} /> 新しい商品を作成
