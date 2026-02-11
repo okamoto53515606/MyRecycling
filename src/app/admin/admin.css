@@ -733,6 +733,75 @@ body.admin-body {
   background: var(--admin-border-color);
 }
 
+/* 受け渡し情報編集 */
+.admin-order-detail__section h2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-order-detail__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 4px;
+  color: var(--admin-primary-color);
+  font-size: 0.8rem;
+  font-weight: normal;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-order-detail__edit-btn:hover {
+  background: var(--admin-bg-light);
+}
+
+.admin-order-detail__edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-order-detail__edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+}
+
+.admin-order-detail__edit-input,
+.admin-order-detail__edit-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: normal;
+  color: var(--admin-text-color);
+}
+
+.admin-order-detail__edit-input:focus,
+.admin-order-detail__edit-select:focus {
+  outline: none;
+  border-color: var(--admin-primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.admin-order-detail__edit-error {
+  color: var(--admin-danger-color);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.admin-order-detail__edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
 .admin-order-detail__receipts {
   display: flex;
   gap: 1rem;

@@ -4,7 +4,7 @@
  * 注文の詳細情報表示とStripe決済履歴、管理者アクション
  */
 import { redirect } from 'next/navigation';
-import { getOrderById } from '@/lib/data';
+import { getOrderById, getMeetingLocationsWithDetails } from '@/lib/data';
 import { marked } from 'marked';
 import { OrderDetailAdmin } from './order-detail-admin';
 import Stripe from 'stripe';
@@ -120,7 +120,10 @@ async function getReceiptUrls(paymentIntentId: string): Promise<{ receiptUrl?: s
 export default async function AdminOrderDetailPage({ params }: PageProps) {
   const { orderId } = await params;
 
-  const order = await getOrderById(orderId);
+  const [order, meetingLocations] = await Promise.all([
+    getOrderById(orderId),
+    getMeetingLocationsWithDetails(),
+  ]);
 
   if (!order) {
     redirect('/admin/orders');
@@ -162,6 +165,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
       paymentHistory={paymentHistoryData}
       receiptUrl={receipts.receiptUrl}
       refundReceiptUrl={receipts.refundReceiptUrl}
+      meetingLocations={meetingLocations}
     />
   );
 }

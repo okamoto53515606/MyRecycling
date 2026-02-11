@@ -8,9 +8,9 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, X, Loader, ExternalLink, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/types';
-import { approveOrder, capturePayment, cancelOrderByAdmin, processRefund } from './actions';
+import { ArrowLeft, X, Loader, ExternalLink, AlertCircle, CheckCircle, Clock, XCircle, Pencil, Save } from 'lucide-react';
+import { ORDER_STATUS_LABELS, type OrderStatus, type MeetingLocation } from '@/lib/types';
+import { approveOrder, capturePayment, cancelOrderByAdmin, processRefund, updateMeetingInfo } from './actions';
 
 // サーバーから渡される注文データ（日付はISO文字列）
 interface OrderData {
@@ -59,6 +59,7 @@ interface OrderDetailAdminProps {
   order: OrderData;
   meetingLocationDescriptionHtml: string;
   paymentHistory: PaymentHistoryEvent[];
+  meetingLocations: MeetingLocation[];
   receiptUrl?: string;
   refundReceiptUrl?: string;
 }
@@ -148,15 +149,27 @@ export function OrderDetailAdmin({
   order,
   meetingLocationDescriptionHtml,
   paymentHistory,
+  meetingLocations,
   receiptUrl,
   refundReceiptUrl,
 }: OrderDetailAdminProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [actionModal, setActionModal] = useState<'approve' | 'capture' | 'cancel' | 'refund' | null>(null);
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // 受け渡し情報編集用state
+  const [isEditingMeeting, setIsEditingMeeting] = useState(false);
+  const [editMeetingDatetime, setEditMeetingDatetime] = useState(order.meetingDatetime.slice(0, 16));
+  const [editMeetingLocationName, setEditMeetingLocationName] = useState(order.meetingLocationName);
+  const [meetingError, setMeetingError] = useState<string | null>(null);
+
+  // 返品受け渡し情報編集用state
+  const [isEditingRefundMeeting, setIsEditingRefundMeeting] = useState(false);
+  const [editRefundMeetingDatetime, setEditRefundMeetingDatetime] = useState(order.refundMeetingDatetime?.slice(0, 16) || '');
+  const [editRefundMeetingLocationName, setEditRefundMeetingLocationName] = useState(order.refundMeetingLocationName || '');
+  const [refundMeetingError, setRefundMeetingError] = useState<string | null>(null);
 
   const actionStates = getActionStates(order.orderStatus);
 
@@ -186,6 +199,56 @@ export function OrderDetailAdmin({
         router.refresh();
       } else {
         setError(result.error || 'エラーが発生しました');
+      }
+    });
+  };
+
+  // 受け渡し情報更新ハンドラー
+  const handleSaveMeetingInfo = () => {
+    setMeetingError(null);
+    startTransition(async () => {
+      const selectedLocation = meetingLocations.find(loc => loc.name === editMeetingLocationName);
+      if (!selectedLocation) {
+        setMeetingError('受け渡し場所を選択してください');
+        return;
+      }
+      const result = await updateMeetingInfo(order.id, {
+        meetingDatetime: new Date(editMeetingDatetime).toISOString(),
+        meetingLocationName: selectedLocation.name,
+        meetingLocationPhotoURL: selectedLocation.photoURL,
+        meetingLocationDescription: selectedLocation.description,
+        meetingLocationGoogleMapEmbedURL: selectedLocation.googleMapEmbedURL,
+      });
+      if (result.success) {
+        setIsEditingMeeting(false);
+        router.refresh();
+      } else {
+        setMeetingError(result.error || 'エラーが発生しました');
+      }
+    });
+  };
+
+  // 返品受け渡し情報更新ハンドラー
+  const handleSaveRefundMeetingInfo = () => {
+    setRefundMeetingError(null);
+    startTransition(async () => {
+      const selectedLocation = meetingLocations.find(loc => loc.name === editRefundMeetingLocationName);
+      if (!editRefundMeetingDatetime || !selectedLocation) {
+        setRefundMeetingError('返品受け渡し日時と場所を入力してください');
+        return;
+      }
+      const result = await updateMeetingInfo(order.id, {
+        refundMeetingDatetime: new Date(editRefundMeetingDatetime).toISOString(),
+        refundMeetingLocationName: selectedLocation.name,
+        refundMeetingLocationPhotoURL: selectedLocation.photoURL,
+        refundMeetingLocationDescription: selectedLocation.description,
+        refundMeetingLocationGoogleMapEmbedURL: selectedLocation.googleMapEmbedURL,
+      });
+      if (result.success) {
+        setIsEditingRefundMeeting(false);
+        router.refresh();
+      } else {
+        setRefundMeetingError(result.error || 'エラーが発生しました');
       }
     });
   };
@@ -260,25 +323,160 @@ export function OrderDetailAdmin({
 
       {/* 受け渡し情報 */}
       <section className="admin-order-detail__section">
-        <h2>受け渡し情報</h2>
-        <dl className="admin-order-detail__list">
-          <dt>受け渡し日時</dt>
-          <dd>{formatDateWithWeekday(order.meetingDatetime)}</dd>
-          
-          <dt>受け渡し場所</dt>
-          <dd>
-            {order.meetingLocationName}
+        <h2>
+          受け渡し情報
+          {!isEditingMeeting && (
             <button
               type="button"
-              className="admin-order-detail__location-link"
-              onClick={() => setIsLocationModalOpen(true)}
+              className="admin-order-detail__edit-btn"
+              onClick={() => setIsEditingMeeting(true)}
+              disabled={isPending}
             >
-              <MapPin size={16} />
-              詳細を見る
+              <Pencil size={16} />
+              編集
             </button>
-          </dd>
-        </dl>
+          )}
+        </h2>
+        {isEditingMeeting ? (
+          <div className="admin-order-detail__edit-form">
+            <label className="admin-order-detail__edit-label">
+              受け渡し日時
+              <input
+                type="datetime-local"
+                value={editMeetingDatetime}
+                onChange={(e) => setEditMeetingDatetime(e.target.value)}
+                className="admin-order-detail__edit-input"
+                disabled={isPending}
+              />
+            </label>
+            <label className="admin-order-detail__edit-label">
+              受け渡し場所
+              <select
+                value={editMeetingLocationName}
+                onChange={(e) => setEditMeetingLocationName(e.target.value)}
+                className="admin-order-detail__edit-select"
+                disabled={isPending}
+              >
+                {meetingLocations.map((loc) => (
+                  <option key={loc.id} value={loc.name}>{loc.name}</option>
+                ))}
+              </select>
+            </label>
+            {meetingError && <p className="admin-order-detail__edit-error">{meetingError}</p>}
+            <div className="admin-order-detail__edit-actions">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setIsEditingMeeting(false);
+                  setEditMeetingDatetime(order.meetingDatetime.slice(0, 16));
+                  setEditMeetingLocationName(order.meetingLocationName);
+                  setMeetingError(null);
+                }}
+                disabled={isPending}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={handleSaveMeetingInfo}
+                disabled={isPending}
+              >
+                {isPending ? <><Loader size={16} className="loading-spinner" />保存中...</> : <><Save size={16} />保存</>}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <dl className="admin-order-detail__list">
+            <dt>受け渡し日時</dt>
+            <dd>{formatDateWithWeekday(order.meetingDatetime)}</dd>
+            
+            <dt>受け渡し場所</dt>
+            <dd>{order.meetingLocationName}</dd>
+          </dl>
+        )}
       </section>
+
+      {/* 返品受け渡し情報 - refund_requested or returned の場合のみ表示 */}
+      {(order.orderStatus === 'refund_requested' || order.orderStatus === 'returned') && (
+        <section className="admin-order-detail__section">
+          <h2>
+            返品受け渡し情報
+            {!isEditingRefundMeeting && order.orderStatus === 'refund_requested' && (
+              <button
+                type="button"
+                className="admin-order-detail__edit-btn"
+                onClick={() => setIsEditingRefundMeeting(true)}
+                disabled={isPending}
+              >
+                <Pencil size={16} />
+                編集
+              </button>
+            )}
+          </h2>
+          {isEditingRefundMeeting ? (
+            <div className="admin-order-detail__edit-form">
+              <label className="admin-order-detail__edit-label">
+                返品受け渡し日時
+                <input
+                  type="datetime-local"
+                  value={editRefundMeetingDatetime}
+                  onChange={(e) => setEditRefundMeetingDatetime(e.target.value)}
+                  className="admin-order-detail__edit-input"
+                  disabled={isPending}
+                />
+              </label>
+              <label className="admin-order-detail__edit-label">
+                返品受け渡し場所
+                <select
+                  value={editRefundMeetingLocationName}
+                  onChange={(e) => setEditRefundMeetingLocationName(e.target.value)}
+                  className="admin-order-detail__edit-select"
+                  disabled={isPending}
+                >
+                  <option value="">選択してください</option>
+                  {meetingLocations.map((loc) => (
+                    <option key={loc.id} value={loc.name}>{loc.name}</option>
+                  ))}
+                </select>
+              </label>
+              {refundMeetingError && <p className="admin-order-detail__edit-error">{refundMeetingError}</p>}
+              <div className="admin-order-detail__edit-actions">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setIsEditingRefundMeeting(false);
+                    setEditRefundMeetingDatetime(order.refundMeetingDatetime?.slice(0, 16) || '');
+                    setEditRefundMeetingLocationName(order.refundMeetingLocationName || '');
+                    setRefundMeetingError(null);
+                  }}
+                  disabled={isPending}
+                >
+                  キャンセル
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={handleSaveRefundMeetingInfo}
+                  disabled={isPending}
+                >
+                  {isPending ? <><Loader size={16} className="loading-spinner" />保存中...</> : <><Save size={16} />保存</>}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <dl className="admin-order-detail__list">
+              <dt>返品受け渡し日時</dt>
+              <dd>{order.refundMeetingDatetime ? formatDateWithWeekday(order.refundMeetingDatetime) : '未設定'}</dd>
+              
+              <dt>返品受け渡し場所</dt>
+              <dd>{order.refundMeetingLocationName || '未設定'}</dd>
+            </dl>
+          )}
+        </section>
+      )}
 
       {/* ステータス履歴 */}
       <section className="admin-order-detail__section">
@@ -438,64 +636,6 @@ export function OrderDetailAdmin({
           </div>
         </div>
       </section>
-
-      {/* 受け渡し場所モーダル */}
-      {isLocationModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsLocationModalOpen(false)}>
-          <div className="modal modal--large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal__header">
-              <h2>{order.meetingLocationName}</h2>
-              <button
-                type="button"
-                className="modal__close"
-                onClick={() => setIsLocationModalOpen(false)}
-                aria-label="閉じる"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <div className="modal__body">
-              {order.meetingLocationGoogleMapEmbedURL && (
-                <div 
-                  className="meeting-location-detail__map"
-                  dangerouslySetInnerHTML={{ __html: order.meetingLocationGoogleMapEmbedURL }}
-                />
-              )}
-              <div className="meeting-location-detail__content">
-                {order.meetingLocationPhotoURL && (
-                  <a
-                    href={order.meetingLocationPhotoURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="meeting-location-detail__photo-link"
-                  >
-                    <img
-                      src={order.meetingLocationPhotoURL}
-                      alt={`${order.meetingLocationName}の写真`}
-                      className="meeting-location-detail__photo"
-                    />
-                  </a>
-                )}
-                {meetingLocationDescriptionHtml && (
-                  <div 
-                    className="meeting-location-detail__description"
-                    dangerouslySetInnerHTML={{ __html: meetingLocationDescriptionHtml }}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="modal__footer">
-              <button
-                type="button"
-                className="btn"
-                onClick={() => setIsLocationModalOpen(false)}
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 承認モーダル */}
       {actionModal === 'approve' && (

@@ -10,6 +10,7 @@ import { checkAdminAccess } from '@/lib/admin-auth';
 import { logger } from '@/lib/env';
 import { revalidatePath } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
+import { sendOrderMail } from '@/lib/mail';
 import Stripe from 'stripe';
 
 /**
@@ -41,6 +42,19 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
     });
 
     logger.info(`[Admin] Order ${orderId} approved`);
+
+    // 注文確定済メールを送信
+    await sendOrderMail('approved_mail', {
+      id: orderId,
+      productId: orderData.productId,
+      productName: orderData.productName,
+      price: orderData.price,
+      buyerEmail: orderData.buyerEmail,
+      buyerDisplayName: orderData.buyerDisplayName,
+      meetingLocationName: orderData.meetingLocationName,
+      meetingDatetime: orderData.meetingDatetime,
+    });
+
     revalidatePath('/admin/orders');
     revalidatePath(`/admin/orders/${orderId}`);
 
@@ -145,6 +159,18 @@ export async function cancelOrderByAdmin(orderId: string, reason: string): Promi
     });
 
     logger.info(`[Admin] Order ${orderId} canceled by admin`);
+
+    // 注文キャンセル済メールを送信
+    await sendOrderMail('canceled_mail', {
+      id: orderId,
+      productId: orderData.productId,
+      productName: orderData.productName,
+      price: orderData.price,
+      buyerEmail: orderData.buyerEmail,
+      buyerDisplayName: orderData.buyerDisplayName,
+      cancellationReason: reason || '管理者によるキャンセル',
+    });
+
     revalidatePath('/admin/orders');
     revalidatePath(`/admin/orders/${orderId}`);
 
@@ -209,5 +235,90 @@ export async function processRefund(orderId: string): Promise<{ success: boolean
     logger.error('[Admin] processRefund failed:', error);
     const errorMessage = error instanceof Error ? error.message : '返金処理中にエラーが発生しました';
     return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * 受け渡し情報を更新する（管理者による）
+ */
+export async function updateMeetingInfo(
+  orderId: string,
+  data: {
+    meetingDatetime?: string;
+    meetingLocationName?: string;
+    meetingLocationPhotoURL?: string;
+    meetingLocationDescription?: string;
+    meetingLocationGoogleMapEmbedURL?: string;
+    refundMeetingDatetime?: string;
+    refundMeetingLocationName?: string;
+    refundMeetingLocationPhotoURL?: string;
+    refundMeetingLocationDescription?: string;
+    refundMeetingLocationGoogleMapEmbedURL?: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const access = await checkAdminAccess();
+    if (!access.isAllowed) {
+      return { success: false, error: access.error };
+    }
+
+    const db = getAdminDb();
+    const orderRef = db.collection('orders').doc(orderId);
+    const orderDoc = await orderRef.get();
+
+    if (!orderDoc.exists) {
+      return { success: false, error: '注文が見つかりません' };
+    }
+
+    const updateData: Record<string, unknown> = {};
+
+    // 受け渡し情報の更新
+    if (data.meetingDatetime) {
+      updateData.meetingDatetime = new Date(data.meetingDatetime);
+    }
+    if (data.meetingLocationName !== undefined) {
+      updateData.meetingLocationName = data.meetingLocationName;
+    }
+    if (data.meetingLocationPhotoURL !== undefined) {
+      updateData.meetingLocationPhotoURL = data.meetingLocationPhotoURL;
+    }
+    if (data.meetingLocationDescription !== undefined) {
+      updateData.meetingLocationDescription = data.meetingLocationDescription;
+    }
+    if (data.meetingLocationGoogleMapEmbedURL !== undefined) {
+      updateData.meetingLocationGoogleMapEmbedURL = data.meetingLocationGoogleMapEmbedURL;
+    }
+
+    // 返品時の受け渡し情報の更新
+    if (data.refundMeetingDatetime) {
+      updateData.refundMeetingDatetime = new Date(data.refundMeetingDatetime);
+    }
+    if (data.refundMeetingLocationName !== undefined) {
+      updateData.refundMeetingLocationName = data.refundMeetingLocationName;
+    }
+    if (data.refundMeetingLocationPhotoURL !== undefined) {
+      updateData.refundMeetingLocationPhotoURL = data.refundMeetingLocationPhotoURL;
+    }
+    if (data.refundMeetingLocationDescription !== undefined) {
+      updateData.refundMeetingLocationDescription = data.refundMeetingLocationDescription;
+    }
+    if (data.refundMeetingLocationGoogleMapEmbedURL !== undefined) {
+      updateData.refundMeetingLocationGoogleMapEmbedURL = data.refundMeetingLocationGoogleMapEmbedURL;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return { success: false, error: '更新するデータがありません' };
+    }
+
+    await orderRef.update(updateData);
+
+    logger.info(`[Admin] Order ${orderId} meeting info updated`);
+    revalidatePath('/admin/orders');
+    revalidatePath(`/admin/orders/${orderId}`);
+
+    return { success: true };
+  } catch (error) {
+    logger.error('[Admin] updateMeetingInfo failed:', error);
+    return { success: false, error: '受け渡し情報の更新に失敗しました' };
   }
 }

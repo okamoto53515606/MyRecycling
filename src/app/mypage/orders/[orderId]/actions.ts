@@ -10,6 +10,7 @@ import { getUser } from '@/lib/auth';
 import { logger } from '@/lib/env';
 import { revalidatePath } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
+import { sendOrderMail } from '@/lib/mail';
 
 /**
  * 注文をキャンセルする
@@ -62,6 +63,17 @@ export async function cancelOrder(orderId: string, reason: string): Promise<{ su
     });
 
     logger.info(`Order ${orderId} canceled by user ${user.uid}`);
+
+    // 注文キャンセル済メールを送信
+    await sendOrderMail('canceled_mail', {
+      id: orderId,
+      productId: orderData.productId,
+      productName: orderData.productName,
+      price: orderData.price,
+      buyerEmail: orderData.buyerEmail,
+      buyerDisplayName: orderData.buyerDisplayName,
+      cancellationReason: reason || '購入者によるキャンセル',
+    });
 
     revalidatePath('/mypage');
     revalidatePath(`/mypage/orders/${orderId}`);
@@ -135,6 +147,19 @@ export async function requestRefund(
     });
 
     logger.info(`Order ${orderId} refund requested by user ${user.uid}`);
+
+    // 返品依頼メールを運営者に送信（利用者には送信しない）
+    await sendOrderMail('refund_requested_mail', {
+      id: orderId,
+      productId: orderData.productId,
+      productName: orderData.productName,
+      price: orderData.price,
+      buyerEmail: orderData.buyerEmail,
+      buyerDisplayName: orderData.buyerDisplayName,
+      refundRequestReason: data.reason,
+      refundMeetingDatetime: data.meetingDatetime,
+      refundMeetingLocationName: data.meetingLocationName,
+    }, { sendToOperatorOnly: true });
 
     revalidatePath('/mypage');
     revalidatePath(`/mypage/orders/${orderId}`);

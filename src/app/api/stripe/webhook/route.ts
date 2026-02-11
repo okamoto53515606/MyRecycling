@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { createProductOrder } from '@/lib/order-admin';
 import { isSoldOut } from '@/lib/data';
 import { logger } from '@/lib/env';
+import { sendOrderMail } from '@/lib/mail';
 import Stripe from 'stripe';
 
 /**
@@ -139,6 +140,19 @@ async function handleProductOrderCompleted(session: Stripe.Checkout.Session) {
     });
 
     logger.info(`Order created with ID: ${orderId}`);
+
+    // 注文確定待ちメールを送信
+    await sendOrderMail('authorized_mail', {
+      id: orderId,
+      productId,
+      productName: metadata.productTitle || '',
+      price: parseInt(metadata.productPrice || '0', 10),
+      currency: 'jpy',
+      buyerEmail: metadata.userEmail || '',
+      buyerDisplayName: metadata.userDisplayName || '',
+      meetingLocationName: metadata.meetingLocationName || '',
+      meetingDatetime: metadata.meetingDateTime || '',
+    });
 
   } catch (error) {
     logger.error('Failed to create order:', error);
