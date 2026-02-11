@@ -4,17 +4,13 @@
  * サイト全体で共通のフッターを提供します。
  * - コピーライト
  * - 法務関連ページへのリンク（2行構成）
- * - 退会リンク（ログイン済みユーザーのみ表示）
+ * - ご利用ガイドリンク
  */
 import { getSiteSettings } from '@/lib/settings';
-import { getUser } from '@/lib/auth';
 import Link from 'next/link';
 
 export default async function Footer() {
-  const [settings, user] = await Promise.all([
-    getSiteSettings(),
-    getUser(),
-  ]);
+  const settings = await getSiteSettings();
   const year = new Date().getFullYear();
   const copyrightText = settings?.copyright || '';
 
@@ -27,9 +23,7 @@ export default async function Footer() {
         </div>
         <div className="footer-links-row">
           <Link href="/legal/commerce">特定商取引法に基づく表記</Link>
-          {user.isLoggedIn && (
-            <Link href="/withdraw">退会</Link>
-          )}
+          <Link href="/guide">ご利用ガイド</Link>
         </div>
       </div>
       <p>{copyrightText}</p>

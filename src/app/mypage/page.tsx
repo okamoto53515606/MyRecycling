@@ -80,6 +80,13 @@ export default async function MyPage() {
           </div>
         )}
       </section>
+
+      <section className="mypage__section mypage__section--withdraw">
+        <h2>退会</h2>
+        <Link href="/withdraw" className="mypage__withdraw-link">
+          退会する
+        </Link>
+      </section>
     </div>
   );
 }

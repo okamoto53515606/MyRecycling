@@ -65,7 +65,96 @@ const siteConfig = {
   metaTitle: 'okamoのリサイクル | 国立市周辺での手渡しリサイクル',
   metaDescription: '国立市周辺（くにたち北市民プラザ、旧国立駅舎）で直接会って品物を受け渡す、小さなリサイクルサービス。安心して取引できます。',
   copyright: `© ${FIXED_YEAR} okamoのリサイクル. All Rights Reserved.`,
-  guideContent: '作成中',
+  guideContent: `
+## ご注文の流れ
+
+### STEP 1: 商品を選ぶ
+
+トップページから気になる商品を探し、商品詳細ページを開きます。
+
+![トップページ](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811255153-Top.png)
+
+### STEP 2: ログインする
+
+注文にはGoogleアカウントでのログインが必要です。
+
+![ログインモーダル](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254778-LoginModal.png)
+
+### STEP 3: 受け渡し日時・場所を選んで注文する
+
+希望の受け渡し日時と場所を選択し、注文内容を確認して「注文する」ボタンを押します。
+
+![注文確認画面](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811255032-OrderConfirm.png)
+
+「詳細はこちら」ボタンで場所の地図や説明を確認できます。
+
+![受け渡し場所の詳細](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811255130-MeetingLocationModal.png)
+
+### STEP 4: クレジットカード情報を入力
+
+Stripeの安全な決済画面でカード情報を入力します。**この時点では与信枠の確保のみで、実際の請求は発生しません。**
+
+![Stripe決済画面](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254914-StripePayment.png)
+
+### STEP 5: 注文完了
+
+注文が完了すると、確認メールが届きます。この時点では「注文確定待ち」の状態です。
+
+![注文完了画面](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254907-PaymentSuccess.png)
+
+![注文確認メール](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254992-authorized_mail.png)
+
+### STEP 6: 注文確定メールを受け取る
+
+運営者が注文を確認後、確定メールが届きます。日時調整が必要な場合は別途ご連絡します。
+
+![注文確定メール](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254957-approved_mail.png)
+
+### STEP 7: 商品を受け取る
+
+指定の日時・場所で商品をお受け取りください。受け渡し完了後に決済が確定し、領収書メールが届きます。
+
+![領収書メール](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254963-after_delivered_receipt.png)
+
+---
+
+## よくあるご質問
+
+### Q. 支払いはいつ発生しますか？
+
+**A. 商品の引き渡し後に決済が確定します。**
+
+注文時にはクレジットカードの与信枠確保（オーソリ）のみが行われます。実際の請求は、商品を受け取った後に運営者が決済を確定した時点で発生します。実物を見てから判断できるので安心です。
+
+### Q. 注文後にキャンセルできますか？
+
+**A. 商品の受け取り前であれば、マイページからいつでも無料でキャンセル可能です。**
+
+キャンセルすると与信枠が解放され、請求は発生しません。
+
+![キャンセルメール](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811254924-canceled_mail.png)
+
+### Q. 商品を受け取った後に返品できますか？
+
+**A. 商品引き渡しから14日以内であれば、理由を問わず返品・全額返金を受け付けます。**
+
+マイページから返品リクエストを送信してください。返品時の受け渡し場所は指定場所（国立周辺）に限ります。
+
+### Q. 受け渡し場所はどこですか？
+
+**A. 以下の公共スペースで受け渡しを行っています。**
+
+- [くにたち北市民プラザのロビー](https://www.city.kunitachi.tokyo.jp/soshiki/Dept05/Div01/Sec01/gyomu/shisetsu/0502/1463551230361.html)
+- [国立駅南口すぐの旧国立駅舎](https://www.city.kunitachi.tokyo.jp/kyukunitachiekisha_specialsite/index.html)
+
+いずれも、誰でも気兼ねなく利用できる公共のスペースです。
+
+### Q. 支払い方法は何がありますか？
+
+**A. クレジットカード（VISA、Mastercard、American Express、JCB）に対応しています。**
+
+決済はStripe社の安全なシステムを利用しており、カード情報は当サイトでは保持しません。
+`.trim(),
   gtmId: '', // 例: GTM-XXXXXXX
 
   // 特定商取引法に基づく表記
