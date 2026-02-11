@@ -59,7 +59,7 @@ export default async function Home({
 
   return (
     <div className="page-section container">
-      <h1>{siteName}</h1>
+      <h1 className="home-title">{siteName}へようこそ</h1>
       {settings.siteDescription && 
         <div className="site-description">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>

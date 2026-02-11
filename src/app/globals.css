@@ -5,6 +5,41 @@
  */
 
 /* ========================================
+   ブルーナカラー（ミッフィー風）CSS変数
+   ======================================== */
+:root {
+  /* ブルーナカラーパレット */
+  --color-orange: #E85B2C;
+  --color-orange-dark: #C94B22;
+  --color-blue: #0072BB;
+  --color-blue-dark: #005A94;
+  --color-green: #00A651;
+  --color-green-dark: #008542;
+  --color-yellow: #F8B500;
+  --color-red: #E60033;
+  --color-red-dark: #C4002A;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-gray: #666666;
+  --color-gray-light: #f5f5f5;
+  
+  /* セマンティックカラー */
+  --color-primary: var(--color-orange);
+  --color-primary-dark: var(--color-orange-dark);
+  --color-secondary: var(--color-blue);
+  --color-secondary-dark: var(--color-blue-dark);
+  --color-success: var(--color-green);
+  --color-warning: var(--color-yellow);
+  --color-danger: var(--color-red);
+  --color-danger-dark: var(--color-red-dark);
+  
+  /* ボーダー */
+  --border-width: 1px;
+  --border-color: #ddd;
+  --border-radius: 4px;
+}
+
+/* ========================================
    リセット & ベース
    ======================================== */
 *, *::before, *::after {
@@ -36,7 +71,8 @@ img {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #ccc;
+  background-color: var(--color-primary);
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .header__left, .header__right {
@@ -52,8 +88,8 @@ img {
 }
 .header__site-name {
   font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--color-white);
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
@@ -62,7 +98,8 @@ img {
   display: inline-block;
 }
 .header__site-name:hover {
-  color: #0066cc;
+  color: var(--color-white);
+  opacity: 0.9;
 }
 @media (max-width: 480px) {
   .header__site-name {
@@ -76,10 +113,11 @@ img {
 }
 
 .site-footer {
-  border-top: 1px solid #ccc;
+  background-color: var(--color-secondary);
+  border-top: var(--border-width) solid var(--border-color);
   padding: 24px 16px;
   text-align: center;
-  color: #666;
+  color: var(--color-white);
 }
 
 .footer-links {
@@ -96,10 +134,12 @@ img {
   gap: 1.5rem;
 }
 .footer-links a {
+  color: var(--color-white);
   text-decoration: underline;
 }
 .footer-links a:hover {
   text-decoration: none;
+  opacity: 0.9;
 }
 
 .container {
@@ -133,13 +173,13 @@ img {
   position: absolute;
   right: 0; 
   top: calc(100% + 8px);
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background: var(--color-white);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   padding: 8px;
   min-width: 200px;
   z-index: 100;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: none;
 }
 
 .dropdown__menu--left {
@@ -425,14 +465,26 @@ img {
 .btn {
   padding: 8px 12px;
   cursor: pointer;
-  border: 1px solid #ccc;
-  background: white;
+  border: var(--border-width) solid var(--border-color);
+  background: var(--color-white);
   white-space: nowrap;
-  color: #333; /* 文字色を明示的に指定 */
-  height: 38px; /* .btn-icon と高さを揃える */
+  color: var(--color-black);
+  height: 38px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-icon {
@@ -447,10 +499,26 @@ img {
   box-sizing: border-box;
 }
 
+/* ヘッダー内のアイコンは白色 */
+.site-header .btn-icon {
+  color: var(--color-white);
+}
+
+.site-header .btn-icon:hover {
+  opacity: 0.8;
+}
+
 .btn--primary {
   padding: 12px 24px;
   width: 100%;
   justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--border-color);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
 }
 
 .btn--secondary {
@@ -506,30 +574,30 @@ img {
   display: flex;
   list-style: none;
   padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   overflow: hidden;
 }
 
 .pagination__item + .pagination__item {
-  border-left: 1px solid #ccc;
+  border-left: var(--border-width) solid var(--border-color);
 }
 
 .pagination__link {
   display: block;
   padding: 8px 12px;
-  color: #333;
+  color: var(--color-black);
   text-decoration: none;
   transition: background-color 0.2s;
 }
 
 .pagination__link:hover {
-  background-color: #f5f5f5;
+  background-color: var(--color-gray-light);
 }
 
 .pagination__link.active {
-  background-color: #333;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   font-weight: bold;
   cursor: default;
 }
@@ -734,14 +802,49 @@ img {
 }
 
 /* ========================================
+   ホームページタイトル
+   ======================================== */
+.home-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: var(--color-gray);
+}
+
+/* ========================================
    サイト説明
    ======================================== */
 .site-description {
-  background-color: #f8f9fa;
+  background-color: var(--color-green);
+  color: var(--color-white);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
   line-height: 1.7;
+  font-size: 0.9rem;
+}
+
+.site-description a {
+  color: var(--color-yellow);
+  text-decoration: underline;
+}
+
+.site-description a:hover {
+  text-decoration: none;
+}
+
+.site-description h1,
+.site-description h2,
+.site-description h3,
+.site-description h4 {
+  color: var(--color-white);
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.site-description h4:first-child {
+  margin-top: 0;
 }
 
 /* ========================================
@@ -758,18 +861,17 @@ img {
    商品カード
    ======================================== */
 .product-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   overflow: hidden;
-  transition: box-shadow 0.2s, transform 0.2s;
-  background: #fff;
+  transition: transform 0.2s;
+  background: var(--color-white);
   display: flex;
   flex-direction: column;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
 
 .product-card.sold-out {
@@ -782,6 +884,7 @@ img {
   width: 100%;
   padding-top: 75%; /* アスペクト比 4:3 */
   overflow: hidden;
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .product-card__image {
@@ -797,12 +900,12 @@ img {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
+  background-color: var(--color-black);
+  color: var(--color-white);
   padding: 5px 10px;
   font-size: 0.8rem;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   z-index: 1;
 }
 
@@ -813,14 +916,14 @@ img {
 
 .product-card__content h2 {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 8px;
   line-height: 1.4;
 }
 
 .product-card__content p {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-gray);
   line-height: 1.5;
 }
 
@@ -836,12 +939,12 @@ img {
 .product-card__price {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #333;
+  color: var(--color-primary);
 }
 
 .product-card__date {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--color-gray);
 }
 
 /* ========================================
@@ -953,7 +1056,7 @@ img {
   
   .product-detail__title {
     font-size: 1.8rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.4;
     margin-bottom: 16px;
   }
@@ -961,14 +1064,16 @@ img {
   .product-detail__price {
     font-size: 2rem;
     font-weight: bold;
+    color: var(--color-primary);
     margin-bottom: 24px;
   }
   
   .product-detail__meta {
     font-size: 0.9rem;
-    color: #333;
+    color: var(--color-black);
     background: #f8f9fa;
-    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
     padding: 16px;
     margin-bottom: 24px;
     display: flex;
@@ -987,7 +1092,7 @@ img {
     display: inline-block;
     font-size: 1.2rem;
     font-weight: bold;
-    color: #dc3545;
+    color: var(--color-danger);
     background-color: #f8f9fa;
     padding: 12px 24px;
     border-radius: 8px;
@@ -1118,7 +1223,7 @@ img {
 }
 
 .order-confirm__location-card.selected {
-  border-color: #007bff;
+  border-color: var(--color-secondary);
   background-color: #f0f7ff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
@@ -1133,7 +1238,7 @@ img {
 .order-confirm__radio-label input[type="radio"] {
   width: 18px;
   height: 18px;
-  accent-color: #007bff;
+  accent-color: var(--color-secondary);
 }
 
 .order-confirm__location-name {
@@ -1146,7 +1251,7 @@ img {
   margin-top: 8px;
   margin-left: 26px;
   font-size: 0.85rem;
-  color: #007bff;
+  color: var(--color-secondary);
   background: none;
   border: none;
   padding: 0;
@@ -1179,8 +1284,8 @@ img {
 }
 
 .order-confirm__date-btn.selected {
-  border-color: #007bff;
-  background-color: #007bff;
+  border-color: var(--color-secondary);
+  background-color: var(--color-secondary);
   color: #fff;
 }
 
@@ -1197,13 +1302,13 @@ img {
 }
 
 .order-confirm__legal a {
-  color: #007bff;
+  color: var(--color-secondary);
   text-decoration: underline;
 }
 
 .order-confirm__error {
-  color: #dc3545;
-  background: #f8d7da;
+  color: var(--color-danger);
+  background: var(--color-gray-light);
   border: 1px solid #f5c6cb;
   border-radius: 4px;
   padding: 12px;
@@ -1229,13 +1334,13 @@ img {
 }
 
 .modal {
-  background: #fff;
-  border-radius: 8px;
+  background: var(--color-white);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   max-width: 480px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .modal--large {
@@ -1247,7 +1352,9 @@ img {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: var(--border-width) solid var(--border-color);
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .modal__header h2 {
@@ -1261,14 +1368,14 @@ img {
   border: none;
   cursor: pointer;
   padding: 4px;
-  color: #666;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal__close:hover {
-  color: #333;
+  opacity: 0.8;
 }
 
 .modal__body {
@@ -1344,31 +1451,31 @@ img {
   justify-content: center;
   gap: 1rem;
   padding: 16px 20px;
-  border-top: 1px solid #eee;
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 /* バリデーションエラー表示 */
 .order-confirm__section--error {
   background-color: #fff5f5;
-  border: 2px solid #dc3545;
+  border: 2px solid var(--color-danger);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
 }
 
 .order-confirm__section--error h3 {
-  border-bottom-color: #dc3545;
+  border-bottom-color: var(--color-danger);
 }
 
 .order-confirm__required {
-  color: #dc3545;
+  color: var(--color-danger);
   font-size: 0.85rem;
   font-weight: normal;
   margin-left: 8px;
 }
 
 .form-group__select--error {
-  border-color: #dc3545;
+  border-color: var(--color-danger);
   background-color: #fff5f5;
 }
 
@@ -1405,7 +1512,7 @@ img {
 }
 
 .markdown-content a {
-  color: #007bff;
+  color: var(--color-secondary);
   text-decoration: underline;
 }
 
@@ -1492,39 +1599,40 @@ img {
 .mypage__status {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .mypage__status--authorized {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--color-yellow);
+  color: var(--color-black);
 }
 
 .mypage__status--approved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--color-green);
+  color: var(--color-white);
 }
 
 .mypage__status--canceled {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--color-gray-light);
+  color: var(--color-gray);
 }
 
 .mypage__status--delivered {
-  background: #cce5ff;
-  color: #004085;
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 
 .mypage__status--refund_requested {
-  background: #e2e3e5;
-  color: #383d41;
+  background: var(--color-primary);
+  color: var(--color-white);
 }
 
 .mypage__status--refunded {
-  background: #d6d8d9;
-  color: #383d41;
+  background: var(--color-gray-light);
+  color: var(--color-gray);
 }
 
 /* レスポンシブ対応 */
@@ -1612,48 +1720,49 @@ img {
 .order-detail__status {
   display: inline-block;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
   font-size: 1rem;
   font-weight: 600;
 }
 
 .order-detail__status--authorized {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--color-yellow);
+  color: var(--color-black);
 }
 
 .order-detail__status--approved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--color-green);
+  color: var(--color-white);
 }
 
 .order-detail__status--canceled {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--color-gray-light);
+  color: var(--color-gray);
 }
 
 .order-detail__status--delivered {
-  background: #cce5ff;
-  color: #004085;
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 
 .order-detail__status--refund_requested {
-  background: #e2e3e5;
-  color: #383d41;
+  background: var(--color-primary);
+  color: var(--color-white);
 }
 
 .order-detail__status--refunded {
-  background: #d6d8d9;
-  color: #383d41;
+  background: var(--color-gray-light);
+  color: var(--color-gray);
 }
 
 .order-detail__notice {
   margin-top: 1rem;
   padding: 1rem;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 8px;
-  color: #856404;
+  background: var(--color-yellow);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--color-black);
 }
 
 .order-detail__section {
@@ -1693,7 +1802,7 @@ img {
 }
 
 .order-detail__product-link {
-  color: #007bff;
+  color: var(--color-secondary);
   text-decoration: none;
 }
 
@@ -1789,23 +1898,23 @@ img {
 }
 
 .btn--danger {
-  background: #dc3545;
-  color: white;
-  border: none;
+  background: var(--color-danger);
+  color: var(--color-white);
+  border: var(--border-width) solid var(--border-color);
 }
 
 .btn--danger:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--color-danger-dark);
 }
 
 .btn--secondary {
-  background: #6c757d;
-  color: white;
-  border: none;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  border: var(--border-width) solid var(--border-color);
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background: #5a6268;
+  background: var(--color-secondary-dark);
 }
 
 /* 注文詳細モーダルスタイル */
@@ -1835,13 +1944,13 @@ img {
 
 .order-detail__modal-textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-secondary);
 }
 
 .order-detail__modal-error {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: #f8d7da;
+  background: var(--color-gray-light);
   border: 1px solid #f5c6cb;
   border-radius: 4px;
   color: #721c24;
@@ -1851,7 +1960,7 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  color: #007bff;
+  color: var(--color-secondary);
   text-decoration: none;
   font-weight: 500;
 }
@@ -1913,12 +2022,12 @@ img {
 }
 
 .order-detail__refund-location-card:hover {
-  border-color: #007bff;
+  border-color: var(--color-secondary);
   background: #f8f9fa;
 }
 
 .order-detail__refund-location-card.selected {
-  border-color: #007bff;
+  border-color: var(--color-secondary);
   background: #e7f5ff;
 }
 
@@ -1935,7 +2044,7 @@ img {
 
 .order-detail__detail-link {
   font-size: 0.85rem;
-  color: #007bff;
+  color: var(--color-secondary);
   background: none;
   border: none;
   cursor: pointer;
@@ -1963,13 +2072,13 @@ img {
 }
 
 .order-detail__refund-date-btn:hover {
-  border-color: #007bff;
+  border-color: var(--color-secondary);
   background: #f8f9fa;
 }
 
 .order-detail__refund-date-btn.selected {
-  border-color: #007bff;
-  background: #007bff;
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
   color: white;
 }
 
