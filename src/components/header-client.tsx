@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/components/auth/auth-provider';
 import type { UserInfo } from '@/lib/auth';
 import Link from 'next/link';
-import { LogOut, Crown, User, Loader, Settings } from 'lucide-react';
+import { LogOut, User, Loader, Settings } from 'lucide-react';
 import { LoginModal } from './login-modal';
 
 interface UserProfileClientProps {
@@ -63,13 +63,6 @@ export function UserProfileClient({ user, siteName, termsOfServiceContent }: Use
     );
   }
 
-  // 支払い状況に基づいて表示を決定
-  const isPaid = user.accessExpiry && new Date(user.accessExpiry) > new Date();
-  const membershipText = isPaid ? '有料会員' : '無料会員';
-  const membershipIcon = isPaid ? 
-    <Crown size={16} style={{marginRight: '8px', color: '#f59e0b'}} /> : 
-    <User size={16} style={{marginRight: '8px'}} />;
-
   return (
     <div className="dropdown" ref={menuRef}>
       <button 
@@ -95,10 +88,14 @@ export function UserProfileClient({ user, siteName, termsOfServiceContent }: Use
             <div className="dropdown__user-name">{user.name}</div>
           </div>
           <hr />
-          <div className="dropdown__item" style={{cursor: 'default'}}>
-             {membershipIcon}
-             <span>{membershipText}</span>
-          </div>
+          <Link 
+            href="/mypage"
+            className="dropdown__item"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <User size={16} style={{marginRight: '8px'}} />
+            マイページ
+          </Link>
           
           {user.role === 'admin' && (
             <Link 

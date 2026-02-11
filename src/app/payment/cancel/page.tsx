@@ -1,5 +1,5 @@
 /**
- * 決済キャンセルページ
+ * 注文キャンセルページ
  * 
  * @description
  * Stripe Checkout でユーザーがキャンセルした場合にリダイレクトされるページ。
@@ -17,9 +17,9 @@ export default function PaymentCancelPage() {
           <div className="payment-result__icon payment-result__icon--cancel">
             <XCircle size={48} />
           </div>
-          <h1>お支払いがキャンセルされました</h1>
+          <h1>注文がキャンセルされました</h1>
           <p>
-            決済は完了していません。いつでも再度お試しいただけます。
+            注文は完了していません。いつでも再度お試しいただけます。
           </p>
         </div>
 

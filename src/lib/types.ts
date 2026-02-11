@@ -47,3 +47,55 @@ export interface UnavailableDate {
   id: string;
   date: Date;
 }
+
+// 注文ステータス
+export type OrderStatus = 
+  | 'authorized'      // 注文確定待ち
+  | 'approved'        // 注文確定済
+  | 'canceled'        // 注文キャンセル済
+  | 'delivered'       // 商品受け渡し済
+  | 'refund_requested' // 返品依頼中
+  | 'refunded';       // 商品返品済
+
+// 注文ステータス表示名
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  authorized: '注文確定待ち',
+  approved: '注文確定済',
+  canceled: '注文キャンセル済',
+  delivered: '商品受け渡し済',
+  refund_requested: '返品依頼中',
+  refunded: '商品返品済',
+};
+
+// 注文データ
+export interface Order {
+  id: string;
+  productId: string;
+  productName: string;
+  price: number;
+  currency: string;
+  buyerUid: string;
+  buyerEmail: string;
+  buyerDisplayName: string;
+  commentFromBuyer: string;
+  meetingLocationName: string;
+  meetingLocationPhotoURL: string;
+  meetingLocationDescription: string;
+  meetingLocationGoogleMapEmbedURL: string;
+  meetingDatetime: Date;
+  orderStatus: OrderStatus;
+  stripePaymentIntentId: string;
+  ipAddress: string;
+  orderedAt: Date;
+  approvedAt?: Date;
+  cancellationReason?: string;
+  canceledAt?: Date;
+  handedOverAt?: Date;
+  refundRequestReason?: string;
+  refundMeetingDatetime?: Date;
+  refundMeetingLocationName?: string;
+  refundMeetingLocationPhotoURL?: string;
+  refundMeetingLocationDescription?: string;
+  refundMeetingLocationGoogleMapEmbedURL?: string;
+  returnedAt?: Date;
+}

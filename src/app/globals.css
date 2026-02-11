@@ -449,14 +449,37 @@ img {
    ======================================== */
 .payment-result {
   text-align: center;
-  padding: 48px;
-  max-width: 400px;
+  padding: 48px 16px;
+  max-width: 600px;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .payment-result {
+    padding: 48px;
+  }
 }
 
 .payment-result__card {
   border: 1px solid #ccc;
-  padding: 24px;
+  border-radius: 8px;
+  padding: 32px;
+  background: #fff;
+}
+
+@media (min-width: 768px) {
+  .payment-result__card {
+    padding: 48px;
+  }
+}
+
+.payment-result__card h1 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.payment-result__card > div > p {
+  margin-bottom: 8px;
 }
 
 .payment-result__icon--success {
@@ -469,11 +492,67 @@ img {
 
 .payment-result__actions {
   margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .payment-result__benefits {
   text-align: left;
   margin-top: 16px;
+}
+
+.payment-result__info {
+  text-align: left;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px 0;
+}
+
+.payment-result__info h2 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.payment-result__info p {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.payment-result__info p:last-child {
+  margin-bottom: 0;
+}
+
+.payment-result__notice {
+  text-align: left;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px 0;
+}
+
+.payment-result__notice h2 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #856404;
+}
+
+.payment-result__notice ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.payment-result__notice li {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #856404;
+}
+
+.payment-result__notice li:last-child {
+  margin-bottom: 0;
 }
 
 /* ========================================
@@ -780,6 +859,7 @@ img {
 
 .btn--full {
   width: 100%;
+  justify-content: center;
 }
 
 .btn--primary + .btn--secondary {
@@ -1209,4 +1289,823 @@ img {
       margin-top: 32px;
     }
   }
+  
+/* ========================================
+   注文確認ページ
+   ======================================== */
+.order-confirm {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.order-confirm__product {
+  text-align: center;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.order-confirm__product h2 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.order-confirm__price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.order-confirm__notice {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.order-confirm__notice p {
+  margin-bottom: 8px;
+}
+
+.order-confirm__notice p:last-child {
+  margin-bottom: 0;
+}
+
+.order-confirm__section {
+  margin-bottom: 24px;
+}
+
+.order-confirm__section h3 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.order-confirm__locations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-confirm__location-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.order-confirm__location-card:hover {
+  border-color: #aaa;
+}
+
+.order-confirm__location-card.selected {
+  border-color: #007bff;
+  background-color: #f0f7ff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.order-confirm__radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.order-confirm__radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #007bff;
+}
+
+.order-confirm__location-name {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.order-confirm__detail-link {
+  display: inline-block;
+  margin-top: 8px;
+  margin-left: 26px;
+  font-size: 0.85rem;
+  color: #007bff;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.order-confirm__detail-link:hover {
+  color: #0056b3;
+}
+
+.order-confirm__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-confirm__date-btn {
+  padding: 10px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.order-confirm__date-btn:hover {
+  border-color: #aaa;
+}
+
+.order-confirm__date-btn.selected {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.order-confirm__no-dates {
+  color: #666;
+  font-style: italic;
+}
+
+.order-confirm__legal {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.order-confirm__legal a {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.order-confirm__error {
+  color: #dc3545;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   モーダル共通
+   ======================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal--large {
+  max-width: 600px;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal__header h2 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.modal__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal__close:hover {
+  color: #333;
+}
+
+.modal__body {
+  padding: 20px;
+}
+
+/* ========================================
+   受け渡し場所詳細（モーダル内）
+   ======================================== */
+.meeting-location-detail__map {
+  margin-bottom: 16px;
+}
+
+.meeting-location-detail__map iframe {
+  width: 100%;
+  height: 250px;
+  border: 0;
+  border-radius: 8px;
+}
+
+.meeting-location-detail__content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.meeting-location-detail__photo-link {
+  flex-shrink: 0;
+}
+
+.meeting-location-detail__photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  transition: opacity 0.2s;
+}
+
+.meeting-location-detail__photo:hover {
+  opacity: 0.8;
+}
+
+.meeting-location-detail__description {
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.meeting-location-detail__description p {
+  margin-bottom: 0.5em;
+}
+
+.meeting-location-detail__description p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .meeting-location-detail__content {
+    flex-direction: column;
+  }
+  
+  .meeting-location-detail__photo {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* モーダルフッター */
+.modal__footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 16px 20px;
+  border-top: 1px solid #eee;
+}
+
+/* バリデーションエラー表示 */
+.order-confirm__section--error {
+  background-color: #fff5f5;
+  border: 2px solid #dc3545;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.order-confirm__section--error h3 {
+  border-bottom-color: #dc3545;
+}
+
+.order-confirm__required {
+  color: #dc3545;
+  font-size: 0.85rem;
+  font-weight: normal;
+  margin-left: 8px;
+}
+
+.form-group__select--error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+/* Markdown content styling inside modals */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child {
+  margin-top: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75em;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content a {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: #0056b3;
+}
+
+/* ========================================
+   マイページ
+   ======================================== */
+.mypage {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.mypage h1 {
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+}
+
+.mypage__section {
+  margin-bottom: 2rem;
+}
+
+.mypage__section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+.mypage__empty {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.mypage__login-required {
+  max-width: 400px;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.mypage__login-required h1 {
+  margin-bottom: 1rem;
+}
+
+.mypage__login-required p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+/* 注文履歴テーブル */
+.mypage__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.mypage__table th,
+.mypage__table td {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mypage__table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.mypage__product-name {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ステータスバッジ */
+.mypage__status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.mypage__status--authorized {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mypage__status--approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mypage__status--canceled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.mypage__status--delivered {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.mypage__status--refund_requested {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.mypage__status--refunded {
+  background: #d6d8d9;
+  color: #383d41;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .mypage__table thead {
+    display: none;
+  }
+
+  .mypage__table,
+  .mypage__table tbody,
+  .mypage__table tr,
+  .mypage__table td {
+    display: block;
+  }
+
+  .mypage__table tr {
+    padding: 1rem 0;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .mypage__table td {
+    padding: 0.25rem 0;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mypage__table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 1rem;
+  }
+
+  .mypage__table td:last-child {
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .mypage__table td:last-child::before {
+    display: none;
+  }
+
+  .mypage__product-name {
+    max-width: none;
+    white-space: normal;
+    text-align: right;
+  }
+}
+
+/* ========================================
+   注文詳細
+   ======================================== */
+.order-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.order-detail__header {
+  margin-bottom: 1.5rem;
+}
+
+.order-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+.order-detail__back:hover {
+  color: #333;
+}
+
+.order-detail h1 {
+  font-size: 1.5rem;
+}
+
+.order-detail__status-section {
+  margin-bottom: 2rem;
+}
+
+.order-detail__status {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.order-detail__status--authorized {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-detail__status--approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.order-detail__status--canceled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-detail__status--delivered {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.order-detail__status--refund_requested {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.order-detail__status--refunded {
+  background: #d6d8d9;
+  color: #383d41;
+}
+
+.order-detail__notice {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  color: #856404;
+}
+
+.order-detail__section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.order-detail__section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.order-detail__section--canceled {
+  background: #fff5f5;
+}
+
+.order-detail__section--refund {
+  background: #f5f5f5;
+}
+
+.order-detail__list {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem;
+}
+
+.order-detail__list dt {
+  font-weight: 600;
+  color: #666;
+}
+
+.order-detail__list dd {
+  color: #333;
+}
+
+.order-detail__product-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.order-detail__product-link:hover {
+  text-decoration: underline;
+}
+
+.order-detail__location-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.order-detail__location-link:hover {
+  background: #d0d0d0;
+}
+
+.order-detail__comment {
+  white-space: pre-wrap;
+  color: #333;
+}
+
+.order-detail__actions {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.order-detail__action-box {
+  flex: 1;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.order-detail__action-box--disabled {
+  opacity: 0.5;
+  background: #f0f0f0;
+}
+
+.order-detail__action-box .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.order-detail__action-note {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.order-detail__action-box--disabled .order-detail__action-note {
+  color: #999;
+}
+
+.order-detail__actions .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .order-detail__list {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .order-detail__list dt {
+    margin-top: 0.5rem;
+  }
+
+  .order-detail__actions {
+    flex-direction: column;
+  }
+}
+
+/* ボタン追加スタイル */
+.btn--small {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.btn--danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.btn--secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+/* 注文詳細モーダルスタイル */
+.order-detail__modal-note {
+  margin-top: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.order-detail__modal-label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.order-detail__modal-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.order-detail__modal-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.order-detail__modal-error {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  color: #721c24;
+}
+
+.order-detail__receipt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.order-detail__receipt-link:hover {
+  text-decoration: underline;
+}
   

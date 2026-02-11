@@ -8,7 +8,7 @@
 import { getAdminDb } from './firebase-admin';
 import { logger } from './env';
 import type { Timestamp, DocumentData, DocumentSnapshot, Query } from 'firebase-admin/firestore';
-import type { Product, MeetingLocation, AvailableWeekday, AvailableTime, UnavailableDate } from './types';
+import type { Product, MeetingLocation, AvailableWeekday, AvailableTime, UnavailableDate, Order } from './types';
 import { Settings } from './settings';
 
 // --- 型定義 (サマリー) ---
@@ -227,6 +227,29 @@ export async function getMeetingLocations(): Promise<AdminMeetingLocationSummary
   }
 }
 
+// 受け渡し場所の全詳細データを取得（注文確認画面用）
+export async function getMeetingLocationsWithDetails(): Promise<MeetingLocation[]> {
+  try {
+    const db = getAdminDb();
+    const snapshot = await db.collection('meeting_locations').orderBy('order', 'asc').get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        description: data.description || '',
+        photoURL: data.photoURL || '',
+        googleMapEmbedURL: data.googleMapEmbedURL || '',
+        order: data.order,
+      };
+    });
+  } catch (error) {
+    logger.error('[data.ts] getMeetingLocationsWithDetails failed:', error);
+    return [];
+  }
+}
+
 export async function getMeetingLocation(id: string): Promise<MeetingLocation | null> {
   try {
     const db = getAdminDb();
@@ -348,5 +371,88 @@ export async function getTags(limit: number = 30): Promise<TagInfo[]> {
   } catch (error) {
     logger.error('[data.ts] getTags failed:', error);
     return [];
+  }
+}
+
+// --- Order Data ---
+
+// Firestore のドキュメントから Order 型へ変換
+const docToOrder = (doc: DocumentSnapshot<DocumentData>): Order => {
+  const data = doc.data();
+  if (!data) throw new Error('Document data not found');
+
+  return {
+    id: doc.id,
+    productId: data.productId,
+    productName: data.productName,
+    price: data.price,
+    currency: data.currency,
+    buyerUid: data.buyerUid,
+    buyerEmail: data.buyerEmail,
+    buyerDisplayName: data.buyerDisplayName,
+    commentFromBuyer: data.commentFromBuyer || '',
+    meetingLocationName: data.meetingLocationName,
+    meetingLocationPhotoURL: data.meetingLocationPhotoURL || '',
+    meetingLocationDescription: data.meetingLocationDescription || '',
+    meetingLocationGoogleMapEmbedURL: data.meetingLocationGoogleMapEmbedURL || '',
+    meetingDatetime: convertTimestamp(data.meetingDatetime),
+    orderStatus: data.orderStatus,
+    stripePaymentIntentId: data.stripePaymentIntentId,
+    ipAddress: data.ipAddress,
+    orderedAt: convertTimestamp(data.orderedAt),
+    approvedAt: data.approvedAt ? convertTimestamp(data.approvedAt) : undefined,
+    cancellationReason: data.cancellationReason,
+    canceledAt: data.canceledAt ? convertTimestamp(data.canceledAt) : undefined,
+    handedOverAt: data.handedOverAt ? convertTimestamp(data.handedOverAt) : undefined,
+    refundRequestReason: data.refundRequestReason,
+    refundMeetingDatetime: data.refundMeetingDatetime ? convertTimestamp(data.refundMeetingDatetime) : undefined,
+    refundMeetingLocationName: data.refundMeetingLocationName,
+    refundMeetingLocationPhotoURL: data.refundMeetingLocationPhotoURL,
+    refundMeetingLocationDescription: data.refundMeetingLocationDescription,
+    refundMeetingLocationGoogleMapEmbedURL: data.refundMeetingLocationGoogleMapEmbedURL,
+    returnedAt: data.returnedAt ? convertTimestamp(data.returnedAt) : undefined,
+  };
+};
+
+// ユーザーの注文一覧を取得
+export async function getUserOrders(uid: string): Promise<Order[]> {
+  try {
+    const db = getAdminDb();
+    const snapshot = await db
+      .collection('orders')
+      .where('buyerUid', '==', uid)
+      .orderBy('orderedAt', 'desc')
+      .get();
+
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => docToOrder(doc));
+  } catch (error) {
+    logger.error('[data.ts] getUserOrders failed:', error);
+    return [];
+  }
+}
+
+// 注文詳細を取得（ユーザー権限チェック付き）
+export async function getOrderForUser(orderId: string, uid: string): Promise<Order | null> {
+  try {
+    const db = getAdminDb();
+    const docSnap = await db.collection('orders').doc(orderId).get();
+
+    if (!docSnap.exists) {
+      logger.warn(`[data.ts] getOrderForUser: Order ${orderId} not found`);
+      return null;
+    }
+
+    const data = docSnap.data();
+    // 購入者本人のみアクセス可能
+    if (data?.buyerUid !== uid) {
+      logger.warn(`[data.ts] getOrderForUser: User ${uid} is not the buyer of order ${orderId}`);
+      return null;
+    }
+
+    return docToOrder(docSnap);
+  } catch (error) {
+    logger.error(`[data.ts] getOrderForUser failed:`, error);
+    return null;
   }
 }

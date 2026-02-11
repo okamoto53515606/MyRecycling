@@ -1,62 +1,30 @@
 'use client';
 
 /**
- * 決済成功ページ
+ * 注文成功ページ
  * 
  * @description
  * Stripe Checkout 完了後にリダイレクトされるページ。
- * URLパラメータに session_id が含まれる。
+ * オーソリ（与信枠確保）完了であり、まだ決済確定ではない。
  * 
- * 注意: このページはあくまで「決済完了の通知」であり、
- * アクセス権の付与は Webhook (checkout.session.completed) で行う。
- * ユーザーがこのページに到達する前にWebhookが処理されている保証はないため、
- * クリティカルな処理はWebhookで行うこと。
+ * 注意: このページはあくまで「注文完了の通知」であり、
+ * Firestoreへの注文データ作成は Webhook で行う。
  */
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Receipt, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 /**
- * 決済成功コンテンツ
+ * 注文成功コンテンツ
  * useSearchParams を使用するため Suspense でラップが必要
  */
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
-  const returnUrl = searchParams.get('return_url');
-  
-  const [sessionInfo, setSessionInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  /**
-   * セッション情報を取得して領収書URLを取得
-   */
-  useEffect(() => {
-    async function fetchSessionInfo() {
-      if (!sessionId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`/api/stripe/session?session_id=${sessionId}`);
-        const data = await response.json();
-        setSessionInfo(data);
-      } catch (error) {
-        console.error('Failed to fetch session info:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSessionInfo();
-  }, [sessionId]);
-
-  // accessDays は Checkout Session の metadata から取得
-  // metadata がない場合のフォールバック値（settings から取得する設計も可能だが、
-  // クライアントコンポーネントのため API 呼び出しが増えるのを避けている）
-  const accessDays = sessionInfo?.metadata?.accessDays || 30;
+  const productTitle = searchParams.get('product_title');
+  const meetingLocation = searchParams.get('meeting_location');
+  const meetingDateTime = searchParams.get('meeting_datetime');
 
   return (
     <div className="payment-result">
@@ -66,63 +34,39 @@ function PaymentSuccessContent() {
           <div className="payment-result__icon payment-result__icon--success">
             <CheckCircle size={48} />
           </div>
-          <h1>お支払いが完了しました</h1>
-          <p>
-            ありがとうございます！全ての有料記事をお読みいただけます。
-          </p>
+          <h1>注文内容を確認中です</h1>
+          <p>ありがとうございます！ご注文を受け付けました。</p>
+          <p>現在、注文内容を確認中です。</p>
         </div>
 
-        {/* 領収書セクション */}
-        <div className="payment-result__receipt">
-          <div>
-            {loading ? (
-              <div className="loading-inline">
-                <Loader2 size={16} className="loading-spin" />
-                <span>領収書を取得中...</span>
-              </div>
-            ) : sessionInfo?.receiptUrl ? (
-              <a
-                href={sessionInfo.receiptUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="receipt-link"
-              >
-                <Receipt size={16} />
-                <span>領収書を表示・ダウンロード</span>
-              </a>
-            ) : (
-              <p>
-                領収書はご登録のメールアドレスに送信されます。
-              </p>
-            )}
+        {/* 注文情報 */}
+        {(productTitle || meetingLocation || meetingDateTime) && (
+          <div className="payment-result__info">
+            <h2>注文内容</h2>
+            {productTitle && <p><strong>商品:</strong> {productTitle}</p>}
+            {meetingLocation && <p><strong>受け渡し場所:</strong> {meetingLocation}</p>}
+            {meetingDateTime && <p><strong>受け渡し日時:</strong> {meetingDateTime}</p>}
           </div>
+        )}
+
+        {/* 注意事項 */}
+        <div className="payment-result__notice">
+          <h2>ご注意</h2>
+          <ul>
+            <li>この時点ではまだ決済は確定していません（与信枠の確保のみ）</li>
+            <li>注文内容を確認後、メールにてご連絡いたします</li>
+            <li>受け渡し完了後に決済が確定します</li>
+          </ul>
         </div>
 
         {/* アクションボタン */}
         <div className="payment-result__actions">
-          {returnUrl ? (
-            <>
-              <button 
-                onClick={() => window.location.href = returnUrl}
-                className="btn btn--primary btn--full"
-              >
-                記事を読む
-              </button>
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="btn btn--secondary btn--full"
-              >
-                トップページへ
-              </button>
-            </>
-          ) : (
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="btn btn--primary btn--full"
-            >
-              トップページへ戻る
-            </button>
-          )}
+          <Link href="/mypage" className="btn btn--primary btn--full">
+            マイページへ
+          </Link>
+          <Link href="/" className="btn btn--full">
+            トップページへ戻る
+          </Link>
         </div>
       </div>
     </div>
@@ -130,7 +74,7 @@ function PaymentSuccessContent() {
 }
 
 /**
- * 決済成功ページ（エクスポート）
+ * 注文成功ページ（エクスポート）
  * useSearchParams を使用するコンテンツを Suspense でラップ
  */
 export default function PaymentSuccessPage() {

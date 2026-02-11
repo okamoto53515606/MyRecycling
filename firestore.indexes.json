@@ -24,6 +24,14 @@
         { "fieldPath": "productId", "order": "ASCENDING" },
         { "fieldPath": "orderStatus", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "buyerUid", "order": "ASCENDING" },
+        { "fieldPath": "orderedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
