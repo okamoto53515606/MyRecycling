@@ -14,6 +14,7 @@
 - **available_weekdays**: 受け渡し可能な曜日
 - **available_times**: 受け渡し可能な時間帯
 - **unavailable_dates**: 受け渡しが不可能な特定の日付
+- **mail_templates**: メールテンプレート
 
 ---
 
@@ -177,6 +178,92 @@
 | `returnedAt` | `timestamp`| (任意) 商品返品日時（返金日時） |
 
 **個数は固定値1の前提** ある商品ID（`productId`）に対し、`orderStatus` が `canceled`, `refunded` 以外の注文が存在する場合、その商品は「Sold out」扱いとして、他の人が注文できないようにアプリケーション側で制御する必要があります。
+
+---
+
+## 7. mail_templates コレクション
+
+注文ステータスに応じて送信するメールのテンプレートを管理します。
+
+- **コレクションパス**: `/mail_templates`
+- **ドキュメントID**: メールテンプレート名（固定値）
+
+### ドキュメントID一覧
+
+| ドキュメントID | 説明 |
+| :--- | :--- |
+| `authorized_mail` | 注文確定待ちメール |
+| `approved_mail` | 注文確定済メール |
+| `canceled_mail` | 注文キャンセル済メール |
+| `refund_requested_mail` | 返品依頼中メール |
+
+### フィールド
+
+| フィールド名 | データ型 | 説明 |
+| :--- | :--- | :--- |
+| `subject` | `string` | メールの件名 |
+| `body` | `string` | メール本文（テキスト） |
+| `ccEmail` | `string` | 控えメールの送信先メールアドレス（送信後、このアドレスに同じメールを送信。空欄の場合は何もしない） |
+
+### プレースホルダー
+
+`subject` と `body` には、`orders` コレクションのフィールド値を挿入するためのプレースホルダーを使用できます。  
+プレースホルダーは `{フィールド名}` の形式で記述します。
+
+#### 使用可能なプレースホルダー
+
+| プレースホルダー | 説明 |
+| :--- | :--- |
+| `{id}` | 注文ドキュメントID |
+| `{productId}` | 商品ドキュメントID |
+| `{productName}` | 商品名 |
+| `{price}` | 金額 |
+| `{currency}` | 通貨 |
+| `{buyerUid}` | 購入者のUID |
+| `{buyerEmail}` | 購入者のメールアドレス |
+| `{buyerDisplayName}` | 購入者の表示名 |
+| `{commentFromBuyer}` | 購入者からのコメント |
+| `{meetingLocationName}` | 受け渡し場所の名称 |
+| `{meetingLocationDescription}` | 受け渡し場所の補足説明 |
+| `{meetingDatetime}` | 受け渡し希望日時 |
+| `{orderStatus}` | 注文ステータス |
+| `{orderedAt}` | 注文受付日時 |
+| `{approvedAt}` | 注文確定日時 |
+| `{cancellationReason}` | 注文キャンセル理由 |
+| `{canceledAt}` | 注文キャンセル日時 |
+| `{handedOverAt}` | 商品受け渡し日時 |
+| `{refundRequestReason}` | 返品理由 |
+| `{refundMeetingDatetime}` | 返品時の受け渡し希望日時 |
+| `{refundMeetingLocationName}` | 返品時の受け渡し場所名 |
+| `{returnedAt}` | 商品返品日時 |
+
+#### 記載例
+
+**件名の例:**
+```
+【{productName}】ご注文を受け付けました
+```
+
+**本文の例:**
+```
+{buyerDisplayName} 様
+
+この度はご注文いただきありがとうございます。
+
+■ご注文内容
+商品名: {productName}
+金額: {price}円
+受け渡し場所: {meetingLocationName}
+受け渡し希望日時: {meetingDatetime}
+
+ご注文の詳細は以下のURLからご確認いただけます。
+https://example.com/mypage/orders/{id}
+```
+
+**出力例（{id}が置換された場合）:**
+```
+https://example.com/mypage/orders/cs_test_a1cuqpgVI4GxG7S6HxIotwVkN5BTdcXzITACF34fYZvX55sRIAGqDhmRcp
+```
 
 ---
 
