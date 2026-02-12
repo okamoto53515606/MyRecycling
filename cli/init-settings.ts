@@ -72,7 +72,7 @@ const siteConfig = {
 
 トップページから気になる商品を探し、商品詳細ページを開きます。
 
-![トップページ](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770811255153-Top.png)
+![トップページ](https://storage.googleapis.com/studio-616520910-f0a62.firebasestorage.app/products/F2UDfthxYDTVmGtwwkpIUrm5Di52/1770902865253-ProductList.png)
 
 ### STEP 2: ログインする
 
