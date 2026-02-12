@@ -5,19 +5,17 @@
  * 【提供する機能】
  * - getAdminDb(): Firestore インスタンス
  * - getAdminAuth(): Auth インスタンス（セッション管理用）
- * - getAdminStorage(): Storage インスタンス（ファイルアップロード用）
+
  * 
  * 注意: クライアントサイドでは src/lib/firebase.ts を使用
  */
 import { initializeApp, getApps, getApp, cert, App } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getAuth, Auth } from 'firebase-admin/auth';
-import { getStorage, Storage } from 'firebase-admin/storage'; //【追加】
 
 let adminApp: App | undefined;
 let adminDb: Firestore | undefined;
 let adminAuth: Auth | undefined;
-let adminStorage: Storage | undefined; //【追加】
 
 const ADMIN_APP_NAME = 'admin-with-credentials';
 
@@ -117,18 +115,4 @@ export function getAdminAuth(): Auth {
   const app = getAdminApp();
   adminAuth = getAuth(app);
   return adminAuth;
-}
-
-/**
- * 【追加】Firebase Admin Storage インスタンスを取得
- * ファイルのアップロード/ダウンロードに使用
- */
-export function getAdminStorage(): Storage {
-  if (adminStorage) {
-    return adminStorage;
-  }
-  
-  const app = getAdminApp();
-  adminStorage = getStorage(app);
-  return adminStorage;
 }

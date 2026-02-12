@@ -118,6 +118,7 @@ img {
   padding: 24px 16px;
   text-align: center;
   color: var(--color-white);
+  margin-top: 3rem;
 }
 
 .footer-links {
@@ -152,6 +153,13 @@ img {
   max-width: 800px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+/* サブページ（ガイド、規約、タグページ等）の見出し */
+.page-section h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .page-section {
@@ -508,6 +516,11 @@ img {
   opacity: 0.8;
 }
 
+/* ヘッダー内のログインボタンは角丸なし */
+.site-header .btn {
+  border-radius: 0;
+}
+
 .btn--primary {
   padding: 12px 24px;
   width: 100%;
@@ -809,6 +822,7 @@ img {
   font-weight: 500;
   margin-bottom: 1rem;
   color: var(--color-gray);
+  text-align: center;
 }
 
 /* ========================================
