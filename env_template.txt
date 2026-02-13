@@ -1,6 +1,3 @@
-# GEMINI_API_KEY
-GEMINI_API_KEY=""
-
 # Firebase Project Configuration
 # Replace with your actual Firebase project settings.
 # You can find these in your Firebase project console:
