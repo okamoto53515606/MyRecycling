@@ -44,7 +44,7 @@ export default function ImageSlider({ images }: ImageSliderProps) {
           src={images[currentIndex].url}
           alt={`Product image ${currentIndex + 1}`}
           fill
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain' }}
           priority={currentIndex === 0} // 最初の画像だけ優先的に読み込む
         />
       </div>

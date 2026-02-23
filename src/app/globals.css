@@ -917,6 +917,7 @@ img {
   padding-top: 75%; /* アスペクト比 4:3 */
   overflow: hidden;
   border-bottom: var(--border-width) solid var(--border-color);
+  background-color: #f0f0f0;
 }
 
 .product-card__image {
@@ -925,7 +926,7 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 画像をトリミングしてフィット */
+  object-fit: contain; /* 縦長・横長どちらも枠内に収める */
 }
 
 .product-card__sold-out-badge {
