@@ -283,3 +283,161 @@ Ran terminal command:  git log --oneline --since="2026-02-22" --reverse
   - 縦スクロールとの誤操作を防ぐため、横方向50px以上かつ縦方向より大きい場合のみ反応
   - 従来の矢印ボタン・ドットインジケーターも引き続き利用可能
 ```
+
+User: 商品詳細ですが、スマホで表がながいと、スマホ横スクロール（商品写真もでかく）となります。スマホ等で、横にひろがらないように表のCSSを調整可能でしょうか？以下おかしくなる表の例です。
+項目	詳細
+対象学年	小学校1年生以上
+セット内容	レゴブロック、モーター、各種センサー（近接・傾き）、スマートハブ（Bluetooth搭載）
+学習の目的	科学・物理・エンジニアリングの基礎を、組み立てとプログラミングを通して楽しく学ぶ（STEAM教育）
+特徴	1つのセットで、自由なモデル制作からカリキュラムに沿った課題解決まで対応可能
+付属おまけ	アプリインストール済みiPad、充電ケーブル
+
+GitHub Copilot: まず現状のテーブルCSSを確認します。 
+
+Searched for regex `product-detail__content-body` (`**/src/app/globals.css`), 7 results
+
+Read [](file:///home/workspace/MyRecycling/src/app/globals.css#1155-1155), lines 1155 to 1200
+
+原因がわかりました。
+
+**問題**: `table` に `display: block; overflow-x: auto;` を付けていますが、`white-space: nowrap` がセルに設定されているため、テーブルが親コンテナの幅を超えて広がります。`table` 自体が `display: block` だと `width: 100%` はビューポート基準になりがちで、親を押し広げてしまいます。
+
+**修正方針**: 
+1. テーブルのラッパーとして `.product-detail__content-body` 自体に `overflow-x: auto` を設定
+2. `table` から `display: block` を外し、通常のテーブルレイアウトに戻す
+3. `white-space: nowrap` を削除し、スマホではセル内テキストが折り返されるようにする
+4. `max-width: 100%` で親コンテナからはみ出さないよう制約する 
+
+Replacing 29 lines with 30 lines in [](file:///home/workspace/MyRecycling/src/app/globals.css)
+
+
+```
+
+```
+
+
+Ran terminal command:  cd /home/workspace/MyRecycling && git add src/app/globals.css && git commit -m "fix: スマホでテーブルがページ全体を横スクロールさせる問題を修正
+
+- tableからdisplay:blockを削除し、親要素にoverflow-x:autoを設定
+- セルのwhite-space:nowrapをword-break:break-wordに変更し折り返し対応
+- ヘッダー(th)のみnowrapを維持して見やすさを確保" && git push
+
+push完了です。変更の要点：
+
+- **セル内テキスト**: `white-space: nowrap`（折り返さない）→ `word-break: break-word`（折り返す）に変更。スマホ幅でもテキストがセル内で改行され、テーブルが画面幅に収まります
+- **ヘッダー(th)のみ** `nowrap` を維持（「項目」「詳細」等の短い見出しは折り返さない方が見やすいため）
+- **万が一テーブルが収まらない場合**: 親要素に `overflow-x: auto` を設定しているので、ページ全体ではなくコンテンツ領域だけが横スクロールします
+
+Made changes.
+
+User: ありがとう！直りました。本件とは関係ないのですが、ついでに修正したい点です。ただデグレはしたくないのです。
+①背景オレンジ色のボタンの周りに薄い灰色のボーダーがあるのですが、
+背景オレンジ色や、背景青色の場合、薄い灰色のボーダーは無しにしたい。
+
+②注文系のボタンの文字サイズが小さすぎるのでもう少し文字サイズを大きくしたいです。
+ログインして注文する
+注文する
+同意の上、注文する
+
+
+③受け取り場所の詳細モーダルで、画像の横にテキストが回り込まない場合がある。
+画像サイズによるのかな？回り込んだ方がスペース有効利用できるので、デグレリスクが低ければ修正したい。
+
+
+
+
+
+GitHub Copilot: 3点調査します。 
+
+Created 4 todos
+
+Searched for regex `btn--primary|btn--secondary|btn--danger` (`**/src/app/globals.css`), 9 results
+
+Searched for regex `meeting-location.*modal|meeting-location-detail` (`**/src/app/globals.css`), 11 results
+
+Read [](file:///home/workspace/MyRecycling/src/components/meeting-location-modal.tsx#1-1), lines 1 to 100
+
+Read [](file:///home/workspace/MyRecycling/src/app/globals.css#520-520), lines 520 to 570
+
+Read [](file:///home/workspace/MyRecycling/src/app/globals.css#1445-1445), lines 1445 to 1510
+
+Now let me check the order-related buttons: 
+
+Searched for regex `同意の上.*注文|注文する|ログインして注文` (`**/src/**/*.tsx`), 7 results
+
+Read [](file:///home/workspace/MyRecycling/src/app/orders/%5BproductId%5D/confirm/order-confirm-client.tsx#295-295), lines 295 to 320
+
+Now let me check the `btn--full` and `btn` base styles: 
+
+Searched for regex `btn--full` (`**/src/app/globals.css`), 1 result
+
+Read [](file:///home/workspace/MyRecycling/src/app/globals.css#486-486), lines 486 to 720
+
+全体像が把握できました。各項目の修正内容とデグレリスクをまとめます。
+
+---
+
+## 修正方針
+
+| # | 修正内容 | デグレリスク |
+|---|---|---|
+| ① | `.btn--primary` と `.btn--secondary` に `border-color: transparent` を追加 | **低** — 色付きボタンのみ影響。白い`.btn`のボーダーはそのまま |
+| ② | `.btn--primary` に `font-size: 1.1rem; height: auto` を追加。注文系ボタンの文字を大きく | **低** — primary ボタン全体の文字が大きくなるが、注文系は全てprimaryなので意図通り |
+| ③ | スマホ時の `flex-direction: column` を削除し、`flex-wrap: wrap` に変更。画像が小さければテキストが横に回り込む | **低** — 画像が大きい場合は自然に改行される |
+
+修正します。  
+
+Updated todo list
+
+Read [](file:///home/workspace/MyRecycling/src/app/globals.css#1978-1978), lines 1978 to 2005
+
+Replacing 32 lines with 34 lines in [](file:///home/workspace/MyRecycling/src/app/globals.css)
+
+
+```
+
+```
+
+
+Starting: *コミット＆プッシュ* (2/2)
+
+Ran terminal command:  cd /home/workspace/MyRecycling && git add src/app/globals.css && git commit -m "style: ボタンUI改善・注文ボタン文字サイズ拡大・受取場所モーダル回り込み対応
+
+① btn--primary/secondary/dangerの灰色ボーダーをtransparentに変更
+② btn--primaryの文字サイズを1.1rem、heightをautoに拡大（注文系ボタン）
+③ 受け渡し場所モーダルのスマホ表示でflex-wrapに変更し画像横にテキスト回り込み対応" && git push
+
+Completed: *コミット＆プッシュ* (2/2)
+
+push完了です。3点の変更内容：
+
+**① ボタンのボーダー** — `.btn--primary` / `.btn--secondary` / `.btn--danger` の `border-color` を `transparent` に変更。白背景の通常 `.btn` は従来通りボーダーあり
+
+**② 注文ボタンの文字サイズ** — `.btn--primary` に `font-size: 1.1rem` と `height: auto` を追加。「ログインして注文する」「注文する」「同意の上、注文する」すべて大きくなります
+
+**③ 受取場所モーダル** — スマホ時の `flex-direction: column`（縦並び強制）を `flex-wrap: wrap` に変更。画像が小さければテキストが横に回り込み、画面幅が足りなければ自然に折り返されます
+
+Made changes.
+
+User: ありがとう。オレンジヘッダの灰色下ボーダーと青フッタの灰色上ボーダーも削除できますか？もともと色あいで境界が灰色ボーダ無しの方がきれいに見える気がするが、どう思う？
+
+GitHub Copilot: おっしゃる通りだと思います。オレンジやブルーのような鮮やかな背景色は、白い本文エリアとの色差だけで十分な境界線になります。薄い灰色ボーダーはむしろ色の切れ味を損ねるので、なくした方がすっきりします。
+
+デグレリスクもほぼゼロです（見た目の微調整のみ）。修正します。 
+
+Replacing 16 lines with 14 lines in [](file:///home/workspace/MyRecycling/src/app/globals.css)
+
+
+```
+
+```
+
+
+Ran terminal command:  cd /home/workspace/MyRecycling && git add src/app/globals.css && git commit -m "style: ヘッダー下ボーダーとフッター上ボーダーを削除
+
+背景色（オレンジ/ブルー）と本文エリアの色差で十分な境界となるため、
+灰色ボーダーを削除してすっきりした見た目に改善。" && git push
+
+完了です。ヘッダーの `border-bottom` とフッターの `border-top` を削除しました。色の切り替わりだけでクリーンな境界になります。
+
+Made changes.
