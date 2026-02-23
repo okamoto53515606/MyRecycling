@@ -917,7 +917,7 @@ img {
   padding-top: 75%; /* アスペクト比 4:3 */
   overflow: hidden;
   border-bottom: var(--border-width) solid var(--border-color);
-  background-color: #f0f0f0;
+  background-color: #ffffff;
 }
 
 .product-card__image {
@@ -989,7 +989,7 @@ img {
     aspect-ratio: 4 / 3;
     overflow: hidden;
     border-radius: 8px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
   }
   
   .image-slider__placeholder {
