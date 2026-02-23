@@ -1160,6 +1160,8 @@ img {
   .product-detail__content-body {
     line-height: 1.8;
     font-size: 0.95rem;
+    overflow-x: auto;
+    max-width: 100%;
   }
 
   .product-detail__content-body table {
@@ -1167,8 +1169,6 @@ img {
     border-collapse: collapse;
     margin: 1em 0;
     font-size: 0.9rem;
-    overflow-x: auto;
-    display: block;
   }
 
   .product-detail__content-body thead {
@@ -1180,11 +1180,12 @@ img {
     border: 1px solid #ddd;
     padding: 8px 12px;
     text-align: left;
-    white-space: nowrap;
+    word-break: break-word;
   }
 
   .product-detail__content-body th {
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .product-detail__content-body tr:hover {
