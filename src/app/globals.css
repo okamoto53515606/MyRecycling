@@ -541,7 +541,9 @@ img {
   justify-content: center;
   background-color: var(--color-primary);
   color: var(--color-white);
-  border-color: var(--border-color);
+  border-color: transparent;
+  font-size: 1.1rem;
+  height: auto;
 }
 
 .btn--primary:hover:not(:disabled) {
@@ -1498,7 +1500,7 @@ img {
 
 @media (max-width: 480px) {
   .meeting-location-detail__content {
-    flex-direction: column;
+    flex-wrap: wrap;
   }
   
   .meeting-location-detail__photo {
@@ -1982,7 +1984,7 @@ img {
 .btn--danger {
   background: var(--color-danger);
   color: var(--color-white);
-  border: var(--border-width) solid var(--border-color);
+  border: var(--border-width) solid transparent;
 }
 
 .btn--danger:hover:not(:disabled) {
@@ -1992,7 +1994,7 @@ img {
 .btn--secondary {
   background: var(--color-secondary);
   color: var(--color-white);
-  border: var(--border-width) solid var(--border-color);
+  border: var(--border-width) solid transparent;
 }
 
 .btn--secondary:hover:not(:disabled) {
