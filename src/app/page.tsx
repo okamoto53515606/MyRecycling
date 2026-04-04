@@ -13,6 +13,8 @@ import type { Metadata } from 'next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+export const dynamic = 'force-dynamic';
+
 const PRODUCTS_PER_PAGE = 30;
 
 /**

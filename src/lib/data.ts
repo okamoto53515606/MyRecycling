@@ -80,19 +80,33 @@ const docToProduct = async (doc: DocumentSnapshot<DocumentData>): Promise<Produc
 
 // --- Settings Data ---
 export async function getSettings(): Promise<Settings> {
-  const db = getAdminDb();
-  const docRef = db.collection('settings').doc('site_config');
-  const docSnap = await docRef.get();
-  if (!docSnap.exists) {
-    throw new Error("Settings not found");
-  }
-  const data = docSnap.data() as DocumentData;
-  return {
-    ...data,
-    siteDescription: data.siteDescription,
-  } as Settings;
-}
+  try {
+    const db = getAdminDb();
+    const docRef = db.collection('settings').doc('site_config');
 
+    // タイムアウト付きでFirestoreにアクセス（ビルド時のタイムアウト対策）
+    const timeoutMs = 3000;
+    const docSnap = await Promise.race([
+      docRef.get(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore access timed out')), timeoutMs)
+      ),
+    ]);
+
+    if (!docSnap.exists) {
+      logger.warn('[data.ts] Settings not found');
+      return {} as Settings;
+    }
+    const data = docSnap.data() as DocumentData;
+    return {
+      ...data,
+      siteDescription: data.siteDescription,
+    } as Settings;
+  } catch (error) {
+    logger.error('[data.ts] getSettings failed:', error);
+    return {} as Settings;
+  }
+}
 // --- Public Product Data (利用者サイト向け) ---
 
 export async function getPublishedProduct(id: string): Promise<Product | null> {
@@ -356,7 +370,14 @@ export async function getUnavailableDates(): Promise<UnavailableDate[]> {
 export async function getTags(limit: number = 30): Promise<TagInfo[]> {
   try {
     const db = getAdminDb();
-    const productsSnapshot = await db.collection('products').where('status', '==', 'published').select('tags').get();
+    // タイムアウト付きでFirestoreにアクセス（ビルド時のタイムアウト対策）
+    const timeoutMs = 3000;
+    const productsSnapshot = await Promise.race([
+      db.collection('products').where('status', '==', 'published').select('tags').get(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore access timed out')), timeoutMs)
+      ),
+    ]);
     const tagCounts: { [key: string]: number } = {};
     productsSnapshot.docs.forEach(doc => {
       const tags = doc.data().tags;
