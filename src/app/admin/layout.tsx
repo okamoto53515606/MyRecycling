@@ -13,6 +13,8 @@ import { getUser } from '@/lib/auth';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import './admin.css';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'サイト管理',
   description: '管理画面',
