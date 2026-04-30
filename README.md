@@ -1,3 +1,4 @@
+# 手渡し限定、私物ガレージセールシステム
 
 *   [開発企画書（Blueprint）](https://github.com/okamoto53515606/MyRecycling/blob/main/docs/blueprint.md)
 *   [紹介記事](https://www.okamomedia.tokyo/articles/ai5)
