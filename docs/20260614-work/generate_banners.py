@@ -27,7 +27,7 @@ from PIL import Image
 load_dotenv()
 
 # ── 設定 ────────────────────────────────────────────────────────────────────
-MODEL       = "gemini-3.1-flash-image-preview"   # Nano Banana 2
+MODEL       = "gemini-3.1-flash-image"   # Nano Banana 2
 CSV_PATH    = Path("sozai/products.csv")
 SOZAI_DIR   = Path("sozai")
 OUTPUT_DIR  = Path("output")
