@@ -190,7 +190,7 @@ output/
 
 | 変数名 | 初期値 | 意味 |
 |--------|--------|------|
-| `MODEL` | `gemini-3.1-flash-image-preview` | 使用する Gemini モデル名 |
+| `MODEL` | `gemini-3.1-flash-image` | 使用する Gemini モデル名 |
 | `CSV_PATH` | `sozai/products.csv` | 商品データの CSV ファイルパス |
 | `SOZAI_DIR` | `sozai` | 商品写真の格納フォルダ |
 | `OUTPUT_DIR` | `output` | バナー保存先フォルダ |
