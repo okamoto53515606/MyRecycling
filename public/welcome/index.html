@@ -11,19 +11,20 @@
   <!--
     [修正①] canonical を /welcome/ に変更
     理由: このファイルは /welcome/index.html として配信されるため、
-    正規URLも /welcome/ にする必要がある。
+    正規URLも /welcome/index.html にする必要がある。
+    Next.js の public/ 配下は /welcome/ ではなく /welcome/index.html として配信される。
     / のままだと Googlebot がルートページと重複コンテンツと判断し、
-    /welcome/ 自体がインデックスされない原因になる。
+    /welcome/index.html 自体がインデックスされない原因になる。
   -->
-  <link rel="canonical" href="https://myrecycling.okamomedia.tokyo/welcome/">
+  <link rel="canonical" href="https://myrecycling.okamomedia.tokyo/welcome/index.html">
 
   <!-- ══ OGP ══ -->
   <meta property="og:type"        content="website">
   <!--
-    [修正①] og:url も canonical と揃えて /welcome/ に変更
+    [修正①] og:url も canonical と揃えて /welcome/index.html に変更
     理由: og:url と canonical の不一致は SNS シェア時の重複判定にも繋がるため。
   -->
-  <meta property="og:url"         content="https://myrecycling.okamomedia.tokyo/welcome/">
+  <meta property="og:url"         content="https://myrecycling.okamomedia.tokyo/welcome/index.html">
   <meta property="og:title"       content="okamoのリサイクル | 国立エリア限定・手渡しガレージセール">
   <meta property="og:description" content="東京都国立市エリア限定・直接手渡し。市場価格より断然お得な私物セール。14日間返品OK。">
   <meta property="og:image"       content="./kDE6KTFzKmhM8PFtl0ma_banner.png">
@@ -37,8 +38,8 @@
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://myrecycling.okamomedia.tokyo/welcome/",
-        "url":  "https://myrecycling.okamomedia.tokyo/welcome/",
+        "@id": "https://myrecycling.okamomedia.tokyo/welcome/index.html",
+        "url":  "https://myrecycling.okamomedia.tokyo/welcome/index.html",
         "name": "okamoのリサイクル | 国立エリア限定・手渡しガレージセール",
         "description": "okamoの私物ガレージセール。東京都国立市エリア限定・直接手渡し。市場価格より断然お得。14日間返品OK。",
         "inLanguage": "ja",
