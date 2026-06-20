@@ -32,6 +32,34 @@
   <meta name="twitter:card"       content="summary_large_image">
 
   <!-- ══ JSON-LD 構造化データ ══ -->
+  <!--
+    [修正③] Google Search Console「商品スニペットの構造化データで問題が検出されました」への対応
+    （2026-06-20 更新）
+
+    追加した主な項目と理由:
+
+    ① MerchantReturnPolicy ノード（@graph に追加）
+       理由: 「hasMerchantReturnPolicy がありません」という指摘への対応。
+       14日間返品OK・無料返品という本サービスのポリシーを schema.org で明示。
+       各 Offer から @id 参照で一元管理することで重複を避けた。
+
+    ② OfferShippingDetails ノード（@graph に追加）
+       理由: 「shippingDetails がありません」という指摘への対応。
+       本サービスは国立市エリア限定の直接手渡しのため送料0円で表現。
+       @id 参照で全商品に共通適用。
+
+    ③ 各 Product に description を追加
+       理由: 「description がありません」という指摘への対応。
+       商品の特徴・状態・お得感を簡潔にテキスト化し、
+       Google ショッピングリッチリザルトでの表示品質向上を狙う。
+
+    ④ 各 Product に brand を追加（Kindle Scribe には gtin13 も追加）
+       理由: 「グローバル ID が指定されていません（例: gtin、brand）」という指摘への対応。
+       JAN コードが特定できる Kindle Scribe 16GB タングステン（プレミアムペン）は
+       gtin13: "4549292167139" を追加。
+       JAN が存在しないセット品・中古品は brand のみで対応（Google 公式ガイドに準拠）。
+       過去問セットは全冊「声の教育社」版のため brand を声の教育社に設定。
+  -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -58,6 +86,44 @@
         }
       },
       {
+        "@type": "MerchantReturnPolicy",
+        "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy",
+        "applicableCountry": "JP",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 14,
+        "returnMethod": "https://schema.org/ReturnInStore",
+        "returnFees": "https://schema.org/FreeReturn"
+      },
+      {
+        "@type": "OfferShippingDetails",
+        "@id": "https://myrecycling.okamomedia.tokyo/#shipping",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "JPY"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "JP",
+          "addressRegion": "東京都"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 7,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          }
+        }
+      },
+      {
         "@type": "ItemList",
         "@id":   "https://myrecycling.okamomedia.tokyo/#catalog",
         "url":   "https://myrecycling.okamomedia.tokyo/",
@@ -69,12 +135,17 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/kDE6KTFzKmhM8PFtl0ma",
               "name":  "Kindle Scribe 16GB タングステンモデル (プレミアムペン・カバーつき)",
+              "description": "Kindle Scribe 16GB タングステンモデル。プレミアムペンと植物性レザーカバー付きの中古美品。中古メルカリ相場27,500円〜より断然お得。",
               "image": "./kDE6KTFzKmhM8PFtl0ma_banner.png",
+              "brand": { "@type": "Brand", "name": "Amazon" },
+              "gtin13": "4549292167139",
               "offers": {
                 "@type": "Offer",
                 "price": "10000", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           },
@@ -84,12 +155,16 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/viHEbu08ndrSjzRzhEnV",
               "name":  "LEGO WeDo 2.0基本セット (iPadつき)",
+              "description": "LEGO Education WeDo 2.0 基本セット（45300）とiPad（第7世代）のセット。プログラミング学習に最適な中古美品。",
               "image": "./viHEbu08ndrSjzRzhEnV_banner.png",
+              "brand": { "@type": "Brand", "name": "LEGO" },
               "offers": {
                 "@type": "Offer",
                 "price": "10000", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           },
@@ -99,12 +174,16 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/FeQgpTb4kiiuc0Okok5q",
               "name":  "IchigoJam 一式セット（キーボード付）",
+              "description": "プログラミング学習用マイコンボード IchigoJam の一式セット。キーボード付き。総務省採用教材。実質無料の破格値。",
               "image": "./FeQgpTb4kiiuc0Okok5q_banner.png",
+              "brand": { "@type": "Brand", "name": "PCN" },
               "offers": {
                 "@type": "Offer",
                 "price": "50", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           },
@@ -114,12 +193,16 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/v9EScHAOAy8dsp8EmTpa",
               "name":  "中学受験 過去問5冊セット（早稲田・桐朋・都市大・栄東・立教新座）",
+              "description": "中学受験過去問5冊セット。早稲田・桐朋・都市大付属・栄東・立教新座。書き込みなしほぼ新品。定価合計14,850円相当。",
               "image": "./v9EScHAOAy8dsp8EmTpa_banner.png",
+              "brand": { "@type": "Brand", "name": "声の教育社" },
               "offers": {
                 "@type": "Offer",
                 "price": "500", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           },
@@ -129,12 +212,16 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/IihXdeHqZsqo7itoyL8A",
               "name":  "プロマリン ブルーベイ磯遠投 3-450",
+              "description": "プロマリン ブルーベイ磯遠投 3-450。全長4.5mの遠投磯竿。中古美品。新品釣具店価格4,000円台の1/8以下。",
               "image": "./IihXdeHqZsqo7itoyL8A_banner.png",
+              "brand": { "@type": "Brand", "name": "プロマリン" },
               "offers": {
                 "@type": "Offer",
                 "price": "500", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           },
@@ -144,12 +231,16 @@
               "@type": "Product",
               "url":   "https://myrecycling.okamomedia.tokyo/products/1oxHXkbLsKr5CYkjcqIb",
               "name":  "プロマリン 玉網 ブルーベイ磯玉セット 450",
+              "description": "プロマリン 玉網 ブルーベイ磯玉セット 450。ほぼ新品。新品Amazon価格2,980円の約1/6。",
               "image": "./1oxHXkbLsKr5CYkjcqIb_banner.png",
+              "brand": { "@type": "Brand", "name": "プロマリン" },
               "offers": {
                 "@type": "Offer",
                 "price": "500", "priceCurrency": "JPY",
                 "itemCondition": "https://schema.org/UsedCondition",
-                "availability": "https://schema.org/InStock"
+                "availability": "https://schema.org/InStock",
+                "shippingDetails": { "@id": "https://myrecycling.okamomedia.tokyo/#shipping" },
+                "hasMerchantReturnPolicy": { "@id": "https://myrecycling.okamomedia.tokyo/#returnpolicy" }
               }
             }
           }
@@ -416,6 +507,24 @@
     .footer__links a:hover { color: #fff; }
     .footer__copy { font-size: 11px; opacity: .4; letter-spacing: .5px; }
 
+    /* ─── Hero Why ─── */
+    .hero__why {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-m);
+      line-height: 2.2;
+      margin: 0 auto 28px;
+      max-width: 420px;
+    }
+    .hero__why::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 2px;
+      background: var(--orange);
+      margin: 0 auto 14px;
+    }
+
     @media (max-width: 600px) {
       .hero__divider { margin: 0 16px 18px; }
       .hero__cards   { grid-template-columns: 1fr; }
@@ -438,6 +547,19 @@
     <div class="hero__headline">
       <h1>私物<span class="hl">ガレージセール</span>、<br>はじめました。</h1>
     </div>
+
+    <!--
+      [修正④] ヒーローセクションに「why（なぜはじめたか）」コピーを追加
+      理由: h1「私物ガレージセール、はじめました。」だけでは動機が伝わらないため、
+      「捨てるのではなく本当に必要な人に使ってほしい」という思いを一言で添える。
+      h1 直下・フィーチャータグ（断然お得 ✦ ...）の上に配置し、
+      読み手の共感を引いてからメリット訴求へ自然につなぐ構成にした。
+    -->
+    <p class="hero__why">
+      捨てることが、できなかった。<br>
+      思い出の品を、本当に必要な人の手へ。<br>
+      そんな思いで、はじめました。
+    </p>
 
     <p class="hero__sub">
       <span class="tag tag--o">断然お得</span>
