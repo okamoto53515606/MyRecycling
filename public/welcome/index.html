@@ -8,11 +8,22 @@
   <title>okamoのリサイクル | 国立エリア限定・手渡しガレージセール【14日間返品OK】</title>
   <meta name="description" content="okamoの私物ガレージセール。東京都国立市エリア限定・直接手渡し。Kindle Scribe・LEGO WeDo 2.0（iPad付き）・中学受験過去問など市場価格より断然お得。受取前キャンセル無料、受取後14日間返品OK。">
   <meta name="keywords" content="okamoのリサイクル,国立市,ガレージセール,フリマ,手渡し,Kindle Scribe,LEGO WeDo,中学受験過去問,IchigoJam,釣り竿,返品OK">
-  <link rel="canonical" href="https://myrecycling.okamomedia.tokyo/">
+  <!--
+    [修正①] canonical を /welcome/ に変更
+    理由: このファイルは /welcome/index.html として配信されるため、
+    正規URLも /welcome/ にする必要がある。
+    / のままだと Googlebot がルートページと重複コンテンツと判断し、
+    /welcome/ 自体がインデックスされない原因になる。
+  -->
+  <link rel="canonical" href="https://myrecycling.okamomedia.tokyo/welcome/">
 
   <!-- ══ OGP ══ -->
   <meta property="og:type"        content="website">
-  <meta property="og:url"         content="https://myrecycling.okamomedia.tokyo/">
+  <!--
+    [修正①] og:url も canonical と揃えて /welcome/ に変更
+    理由: og:url と canonical の不一致は SNS シェア時の重複判定にも繋がるため。
+  -->
+  <meta property="og:url"         content="https://myrecycling.okamomedia.tokyo/welcome/">
   <meta property="og:title"       content="okamoのリサイクル | 国立エリア限定・手渡しガレージセール">
   <meta property="og:description" content="東京都国立市エリア限定・直接手渡し。市場価格より断然お得な私物セール。14日間返品OK。">
   <meta property="og:image"       content="./kDE6KTFzKmhM8PFtl0ma_banner.png">
@@ -26,8 +37,8 @@
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://myrecycling.okamomedia.tokyo/",
-        "url":  "https://myrecycling.okamomedia.tokyo/",
+        "@id": "https://myrecycling.okamomedia.tokyo/welcome/",
+        "url":  "https://myrecycling.okamomedia.tokyo/welcome/",
         "name": "okamoのリサイクル | 国立エリア限定・手渡しガレージセール",
         "description": "okamoの私物ガレージセール。東京都国立市エリア限定・直接手渡し。市場価格より断然お得。14日間返品OK。",
         "inLanguage": "ja",
@@ -279,13 +290,11 @@
     .carousel__slide img {
       width: 100%; height: 100%; object-fit: cover;
     }
-    .carousel__counter {
-      position: absolute; top: 12px; right: 12px;
-      background: rgba(0,0,0,.42); color: rgba(255,255,255,.9);
-      font-size: 11px; font-weight: 700; letter-spacing: 1px;
-      padding: 3px 10px; border-radius: 999px;
-      backdrop-filter: blur(4px);
-    }
+    /*
+      [修正②] .carousel__counter スタイルを削除
+      理由: バナー右上の「1 / 6」数字表示が商品画像の右上を隠してしまうため削除。
+      スライド位置の把握は下部のドットナビゲーション(.carousel__dot)で代替できる。
+    */
     .carousel__arr {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 42px; height: 42px; border-radius: 50%;
@@ -490,7 +499,7 @@
         </div>
 
       </div><!-- /.carousel__track -->
-      <div class="carousel__counter" id="counter" aria-live="polite">1 / 6</div>
+      <!-- [修正②] カウンター要素を削除 — バナー右上を隠すため。下部ドットで代替 -->
     </div><!-- /.carousel -->
 
     <div class="carousel__prog" role="progressbar" aria-label="スライド進捗">
@@ -624,7 +633,7 @@
   var track   = document.getElementById('track');
   var dotsEl  = document.getElementById('dots');
   var progBar = document.getElementById('progBar');
-  var counter = document.getElementById('counter');
+  // [修正②] counter 変数を削除 — カウンター要素ごと除去したため不要
   var slides  = Array.from(track.querySelectorAll('.carousel__slide'));
   var N       = slides.length;
   var cur = 0, autoTmr = null, progRAF = null, progStart = null;
@@ -642,7 +651,7 @@
   function goTo(idx, resetAuto) {
     cur = ((idx % N) + N) % N;
     track.style.transform = 'translateX(-' + (cur * 100) + '%)';
-    counter.textContent   = (cur + 1) + ' / ' + N;
+    // [修正②] counter.textContent 更新を削除 — カウンター要素なし
     getDots().forEach(function(d, i) { d.classList.toggle('on', i === cur); });
     startProgress();
     if (resetAuto) { clearInterval(autoTmr); startAuto(); }
