@@ -1,13 +1,14 @@
 # ---- Stage 1: Dependencies ----
-# CVE-2026-111497（Brotli デコーダの OOB write / RCE）修正版の Node.js に固定する
-# 22.23.4 は 2026-10-21 のセキュリティリリース（22 系の Brotli 修正を含む）
-FROM node:22.23.4-slim AS deps
+# Node.js 22 系のパッチ/マイナーは自動追随する（ビルド時に --pull で最新を取得）。
+# CVE-2026-111497（Brotli デコーダの OOB write / RCE）は 22.23.4 で修正済み。
+# 修正前の Node.js に戻っていないかは cloudbuild.yaml でビルド時に検証する。
+FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json ./
 RUN npm install --legacy-peer-deps
 
 # ---- Stage 2: Build ----
-FROM node:22.23.4-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -25,7 +26,7 @@ ARG NEXT_PUBLIC_STRIPE_PUBLIC_KEY
 RUN npm run build
 
 # ---- Stage 3: Runner ----
-FROM node:22.23.4-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

@@ -15,6 +15,19 @@ steps:
       - '-t'
       - '${_IMAGE_TAG}'
       - '.'
+
+  # ビルドしたイメージの Node.js バージョンを記録し、CVE-2026-111497（Brotli）修正前なら失敗させる
+  # node:22-slim はフローティングタグのため、意図せず旧パッチに戻った場合に検知する
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'check-node-version'
+    args:
+      - 'run'
+      - '--rm'
+      - '--entrypoint'
+      - 'node'
+      - '${_IMAGE_TAG}'
+      - '-e'
+      - 'const v=process.versions.node.split(".").map(Number);const ok=v[0]>22||(v[0]===22&&(v[1]>23||(v[1]===23&&v[2]>=4)));console.log("runtime Node.js:",process.versions.node);if(!ok){console.error("ERROR: CVE-2026-111497 未修正の Node.js です（22.23.4 以上が必要）");process.exit(1)}'
 images:
   - '${_IMAGE_TAG}'
 options:
