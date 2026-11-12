@@ -1,7 +1,9 @@
 # ---- Stage 1: Dependencies ----
 # Node.js 24 系のパッチ/マイナーは自動追随する（ビルド時に --pull で最新を取得）。
-# CVE-2026-111497（Brotli デコーダの OOB write / RCE）は 22.23.4 / 24.22.1 で修正済み。
-# 修正前の Node.js に戻っていないかは cloudbuild.yaml でビルド時に検証する。
+# タグは固定しない（24系フローティング）。ただしセキュリティ修正前の Node.js に
+# 戻っていないかは cloudbuild.yaml でビルド時に検証する。
+# 2026-11-11 のセキュリティリリース（high 7件 / medium 6件 / low 3件）は
+# 24.22.3 / 22.23.5 / 26.13.1 で修正済み。
 FROM node:24-slim AS deps
 WORKDIR /app
 COPY package.json ./

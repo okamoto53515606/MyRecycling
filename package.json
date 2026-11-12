@@ -1,12 +1,14 @@
 {
   "name": "nextn",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
+  "engines": {
+    "node": ">=24.22.3"
+  },
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "build": "NODE_ENV=production next build",
     "start": "next start",
-    "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "set-admin": "tsx cli/set-admin.ts",
     "remove-admin": "tsx cli/remove-admin.ts",
@@ -16,22 +18,22 @@
     "test-mail": "tsx cli/test-mail.ts"
   },
   "dependencies": {
-    "@next/third-parties": "^15.5.28",
+    "@next/third-parties": "^16.4.6",
     "browser-image-compression": "^2.0.2",
     "dotenv": "^16.5.0",
     "firebase": "^11.0.2",
     "firebase-admin": "^13.6.0",
     "lucide-react": "^0.475.0",
     "marked": "^17.0.1",
-    "next": "^15.5.28",
+    "next": "^16.4.6",
     "nodemailer": "^10.1.7",
-    "react": "^19.2.9",
-    "react-dom": "^19.2.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",
     "stripe": "^20.1.0",
     "tsx": "^4.16.2",
-    "zod": "^3.24.2"
+    "zod": "^4.6.7"
   },
   "overrides": {
     "postcss": "^8.5.28",
@@ -40,7 +42,8 @@
     "uuid": "^11.1.1",
     "@grpc/grpc-js": "^1.14.6",
     "@fastify/busboy": "^3.2.3",
-    "source-map-js": "^1.2.2"
+    "source-map-js": "^1.2.2",
+    "fast-xml-parser": "^5.12.0"
   },
   "browserslist": [
     "last 2 Chrome versions",

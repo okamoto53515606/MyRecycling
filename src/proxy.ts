@@ -59,7 +59,7 @@ function isLocalIp(ip: string): boolean {
   );
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // --- ステップ1: 環境変数から許可IPアドレスのリストを取得 ---
   // ALLOWED_IP_ADDRESSES_FOR_THE_ADMIN_PAGE="xxx.xxx.xxx.xxx yyy.yyy.yyy.yyy" のような形式を想定
   const allowedIpsString = process.env.ALLOWED_IP_ADDRESSES_FOR_THE_ADMIN_PAGE;
@@ -108,11 +108,11 @@ export function middleware(request: NextRequest) {
 }
 
 /**
- * ミドルウェアの適用範囲を指定する設定オブジェクト
+ * proxy の適用範囲を指定する設定オブジェクト
  */
 export const config = {
   /**
-   * `matcher` プロパティにパスのパターンを指定することで、ミドルウェアが実行されるリクエストを限定します。
+   * `matcher` プロパティにパスのパターンを指定することで、proxy が実行されるリクエストを限定します。
    * '/admin/:path*' は、以下の両方のパターンに一致します。
    * - /admin （ルート）
    * - /admin/articles, /admin/users/new のような任意のサブパス
